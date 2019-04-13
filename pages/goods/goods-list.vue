@@ -60,16 +60,20 @@
 			
 			//兼容H5下排序栏位置
 			// #ifdef H5
-				this.headerTop = document.getElementsByTagName('uni-page-head')[0].offsetHeight+'px';
+				if(document.getElementsByTagName('uni-page-head')[0]){
+					this.headerTop = document.getElementsByTagName('uni-page-head')[0].offsetHeight+'px';
+				} else {
+					this.headerTop = '44px';
+				}
 			// #endif
 		},
 		onPageScroll(e){
 			//兼容iOS端下拉时顶部漂移
-			if(e.scrollTop>=0){
+			/* if(e.scrollTop>=0){
 				this.headerPosition = "fixed";
 			}else{
 				this.headerPosition = "absolute";
-			}
+			} */
 		},
 		//下拉刷新，需要自己在page.json文件中配置开启页面下拉刷新 "enablePullDownRefresh": true
 		onPullDownRefresh() {

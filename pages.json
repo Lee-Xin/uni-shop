@@ -161,6 +161,12 @@
 				}
 			}
         }
+        ,{
+            "path" : "pages/goods/search",
+            "style" : {
+				"navigationBarTitleText": "搜索"
+			}
+        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

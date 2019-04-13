@@ -3,13 +3,8 @@
 		<!-- 状态栏 -->
 		<view class="status" :style="{position:headerPosition}"></view>
         <view class="header" :style="{position:headerPosition}">
-			<view class="addr"><view class="icon location"></view>{{city}}</view>
-			<view class="input-box">
-				<input placeholder="默认关键字" placeholder-style="color:#c0c0c0;" @tap="toSearch()"/>
-				<view class="icon search"></view>
-			</view>
-			<view class="icon-btn">
-				<view class="icon tongzhi" @tap="toMsg"></view>
+			<view class="header-wrap">
+				<search-tip></search-tip>
 			</view>
 		</view>
 		<!-- 占位 -->
@@ -43,14 +38,13 @@
 	</view>
 </template>
 <script>
-	//高德SDK
-	import amap from '@/common/SDK/amap-wx.js';
+	import SearchTip from '@/components/search-tip.vue'
 	export default {
+		components: {SearchTip},
 		data() {
 			return {
 				showCategoryIndex:0,
 				headerPosition:"fixed",
-				city:"北京",
 				//分类列表
 				categoryList:[
 					{id:1,title:'家用电器',banner:'../../static/img/category/banner.jpg',list:[
@@ -120,10 +114,6 @@
 				uni.navigateTo({
 					url: '../goods/goods-list?cid='+e.id+'&name='+e.name
 				});
-			},
-			//搜索跳转
-			toSearch(){
-				uni.showToast({title: "建议跳转到新页面做搜索功能"});
 			}
 		}
 	}
@@ -165,19 +155,34 @@
 	}
 
 	.header{
-		width: 92%;
-		padding: 0 4%;
-		height: 100upx;
+		width: 100%;
 		display: flex;
 		align-items: center;
 		position: fixed;
 		top: 0;
 		z-index: 10;
-		background-color: #fff;
+		border-bottom: solid 1px #dddddd;
 		/*  #ifdef  APP-PLUS  */
 		top: var(--status-bar-height);
 		/*  #endif  */
-		
+		.header-wrap{
+			width: 100%;
+			padding: 14upx 4%;
+		}
+		.icon-btn {
+			width: 60upx;
+			height: 60upx;
+			flex-shrink: 0;
+			display: flex;
+			.icon {
+				width: 60upx;
+				height: 60upx;
+				display: flex;
+				justify-content: flex-end;
+				align-items: center;
+				font-size: 42upx;
+			}
+		}
 		.addr{
 			width: 120upx;
 			height: 60upx;
@@ -235,9 +240,8 @@
 		}
 	}
 	.place{
-		
 		background-color: #ffffff;
-		height: 100upx;
+		height: 88upx;
 		/*  #ifdef  APP-PLUS  */
 		margin-top: var(--status-bar-height);
 		/*  #endif  */
@@ -249,9 +253,9 @@
 		.left,.right{
 			position: absolute;
 			
-			top: 100upx;
+			top: 88upx;
 			/*  #ifdef  APP-PLUS  */
-			top: calc(100upx + var(--status-bar-height));
+			top: calc(88upx + var(--status-bar-height));
 			/*  #endif  */
 			bottom: 0upx;
 		}
@@ -278,7 +282,7 @@
 					}
 				}
 				&.on{
-					height: 100upx;
+					height: 88upx;
 					background-color: #fff;
 					.text{
 						font-size: 30upx;

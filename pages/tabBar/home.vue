@@ -3,35 +3,14 @@
 		<!-- 状态栏 -->
 		<view class="status" :style="{ position: headerPosition,top:statusTop,opacity: afterHeaderOpacity}"></view>
 		<!-- 顶部导航栏 -->
-		<view class="header" :style="{ position: headerPosition,top:headerTop,opacity: afterHeaderOpacity }">
-			<!-- 搜索框 -->
-			<view class="input-box" @tap="toSearch()">
-				<img src="/static/img/logo.png">
-				<input
-					placeholder="默认关键字"
-					placeholder-style="color:#c0c0c0;"
-				/>
-				<view class="icon search"></view>
+		<view class="header" :style="{ position: headerPosition,top:headerTop,opacity: afterHeaderOpacity}">
+			<view class="header-wrap" :style="{ backgroundColor: headerBackground }">
+				<search-tip></search-tip>
 			</view>
-			
 		</view>
 		<!-- 轮播图 -->
 		<view class="swiper">
-			<view class="swiper-box">
-				<swiper circular="true" autoplay="true" @change="swiperChange">
-					<swiper-item v-for="swiper in swiperList" :key="swiper.id">
-						<image :src="swiper.img" @tap="toSwiper(swiper)"></image>
-					</swiper-item>
-				</swiper>
-				<view class="indicator">
-					<view
-						class="dots"
-						v-for="(swiper, index) in swiperList"
-						:class="[currentSwiper >= index ? 'on' : '']"
-						:key="index"
-					></view>
-				</view>
-			</view>
+			<swiper-images @clickFn="toSwiper" :swiperList="swiperList"></swiper-images>
 		</view>
 		<!-- 分类列表 -->
 		<view class="category-list">
@@ -101,7 +80,10 @@
 </template>
 
 <script>
+import SearchTip from '@/components/search-tip.vue'
+import SwiperImages from '@/components/swiper-images.vue'
 export default {
+	components: {SearchTip, SwiperImages},
 	data() {
 		return {
 			afterHeaderOpacity: 1,//不透明度
@@ -109,7 +91,8 @@ export default {
 			headerTop:null,
 			statusTop:null,
 			city: '北京',
-			currentSwiper: 0,
+			searchTip: '集成灶',
+			headerBackground: 'unset',
 			// 轮播图片
 			swiperList: [
 				{ id: 1, src: 'url1', img: '../../static/img/1.jpg' },
@@ -248,6 +231,13 @@ export default {
 		//加载活动专区
 		this.loadPromotion();
 	},
+	onPageScroll(scrollObj){
+		if(scrollObj.scrollTop > 60){
+			this.headerBackground = '#ffffff';
+		} else {
+			this.headerBackground = 'unset';
+		}
+	},
 	methods: {
 		//加载Promotion 并设定倒计时,,实际应用中应该是ajax加载此数据。
 		loadPromotion() {
@@ -344,13 +334,9 @@ export default {
 				url:'../msg/msg'
 			})
 		},
-		//搜索跳转
-		toSearch() {
-			uni.showToast({ title: '建议跳转到新页面做搜索功能' });
-		},
 		//轮播图跳转
-		toSwiper(e) {
-			uni.showToast({ title: e.src, icon: 'none' });
+		toSwiper(swiper) {
+			uni.showToast({ title: swiper.src, icon: 'none' });
 		},
 		//分类跳转
 		toCategory(e) {
@@ -369,10 +355,6 @@ export default {
 			uni.navigateTo({
 				url: '../goods/goods'
 			});
-		},
-		//轮播图指示器
-		swiperChange(event) {
-			this.currentSwiper = event.detail.current;
 		}
 	}
 };
@@ -442,10 +424,8 @@ page{position: relative;}
 	/*  #endif  */
 }
 .header {
-	width: 92%;
-	padding: 0 4%;
+	width: 100%;
 	display: flex;
-	padding-top: 10upx;
 	align-items: center;
 	position: fixed;
 	top: 0;
@@ -453,36 +433,10 @@ page{position: relative;}
 	/*  #ifdef  APP-PLUS  */
 	top: var(--status-bar-height);
 	/*  #endif  */
-	.input-box {
+	.header-wrap{
 		width: 100%;
-		height: 60upx;
-		background-color: rgba(255,255,255,0.6);
-		border-radius: 30upx;
-		position: relative;
-		display: flex;
-		align-items: center;
-		.icon {
-			display: flex;
-			align-items: center;
-			position: absolute;
-			top: 0;
-			right: 0;
-			width: 60upx;
-			height: 60upx;
-			font-size: 34upx;
-			color: #c0c0c0;
-		}
-		input {
-			padding-left: 28upx;
-			height: 28upx;
-			font-size: 28upx;
-		}
-		img{
-			height: 52upx;
-			width: 180upx;
-			vertical-align: middle;
-			margin-left: 5upx;
-		}
+		box-sizing: border-box;
+		padding: 14upx 4%;
 	}
 	.icon-btn {
 		width: 60upx;
@@ -510,47 +464,14 @@ page{position: relative;}
 	width: 100%;
 	display: flex;
 	justify-content: center;
-	.swiper-box {
-		width: 100%;
-		height: 22vh;
-		overflow: hidden;
-		position: relative;
-		//兼容ios，微信小程序
-		z-index: 1;
-		swiper {
-			width: 100%;
-			height: 100%;
-			swiper-item {
-				image {
-					width: 100%;
-					height: 100%;
-				}
-			}
-		}
-		.indicator {
-			position: absolute;
-			bottom: 20upx;
-			left: 20upx;
-			background-color: rgba(255, 255, 255, 0.4);
-			width: 150upx;
-			height: 5upx;
-			border-radius: 3upx;
-			overflow: hidden;
-			display: flex;
-			.dots {
-				width: 100%;
-				&.on {
-					background-color: rgba(255, 255, 255, 1);
-				}
-			}
-		}
-	}
 }
 
 .category-list {
 	width: 92%;
 	margin: 0 4%;
 	padding: 0 0 30upx 0;
+	border-top-left-radius: 10upx;
+	border-top-right-radius: 10upx;
 	border-bottom: solid 2upx #f6f6f6;
 	display: flex;
 	justify-content: space-between;
