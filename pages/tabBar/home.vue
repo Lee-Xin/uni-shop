@@ -20,7 +20,7 @@
 				:key="index"
 				@tap="toCategory(row)"
 			>
-				<view class="img"><image :src="row.img"></image></view>
+				<view class="img"><image :src="'http://localhost:3000'+row.img"></image></view>
 				<view class="text">{{ row.name }}</view>
 			</view>
 		</view>
@@ -66,11 +66,11 @@
 					:key="product.goods_id"
 					@tap="toGoods(product)"
 				>
-					<image mode="widthFix" :src="product.img"></image>
+					<image mode="widthFix" :src="'http://localhost:3000'+product.img"></image>
 					<view class="name">{{ product.name }}</view>
 					<view class="info">
 						<view class="price">{{ product.price }}</view>
-						<view class="slogan">{{ product.slogan }}</view>
+						<active-flag :activeId="product.active_id"></active-flag>
 					</view>
 				</view>
 			</view>
@@ -82,8 +82,9 @@
 <script>
 import SearchTip from '@/components/search-tip.vue'
 import SwiperImages from '@/components/swiper-images.vue'
+import ActiveFlag from '@/components/active-flag.vue'
 export default {
-	components: {SearchTip, SwiperImages},
+	components: {SearchTip, SwiperImages, ActiveFlag},
 	data() {
 		return {
 			afterHeaderOpacity: 1,//不透明度
@@ -94,96 +95,17 @@ export default {
 			searchTip: '集成灶',
 			headerBackground: 'unset',
 			// 轮播图片
-			swiperList: [
-				{ id: 1, src: 'url1', img: '../../static/img/1.jpg' },
-				{ id: 2, src: 'url2', img: '../../static/img/2.jpg' },
-				{ id: 3, src: 'url3', img: '../../static/img/3.jpg' }
-			],
+			swiperList: [],
 			// 分类菜单
-			categoryList: [
-				{ id: 1, name: '办公', img: '../../static/img/category/1.png' },
-				{ id: 2, name: '家电', img: '../../static/img/category/2.png' },
-				{ id: 3, name: '服饰', img: '../../static/img/category/3.png' },
-				{ id: 4, name: '日用', img: '../../static/img/category/4.png' },
-				{ id: 5, name: '蔬果', img: '../../static/img/category/5.png' },
-				{ id: 6, name: '运动', img: '../../static/img/category/6.png' },
-				{ id: 7, name: '书籍', img: '../../static/img/category/7.png' },
-				{ id: 8, name: '文具', img: '../../static/img/category/8.png' }
-			],
+			categoryList: [],
 			Promotion: [],
+			queryProdParam: {
+				page: 1,
+				pageSize: 10
+			},
 			//猜你喜欢列表
-			productList: [
-				{
-					goods_id: 0,
-					img: '../../static/img/goods/p1.jpg',
-					name: '商品名称商品名称商品名称商品名称商品名称',
-					price: '￥168',
-					slogan: '1235人付款'
-				},
-				{
-					goods_id: 1,
-					img: '../../static/img/goods/p2.jpg',
-					name: '商品名称商品名称商品名称商品名称商品名称',
-					price: '￥168',
-					slogan: '1235人付款'
-				},
-				{
-					goods_id: 2,
-					img: '../../static/img/goods/p3.jpg',
-					name: '商品名称商品名称商品名称商品名称商品名称',
-					price: '￥168',
-					slogan: '1235人付款'
-				},
-				{
-					goods_id: 3,
-					img: '../../static/img/goods/p4.jpg',
-					name: '商品名称商品名称商品名称商品名称商品名称',
-					price: '￥168',
-					slogan: '1235人付款'
-				},
-				{
-					goods_id: 4,
-					img: '../../static/img/goods/p5.jpg',
-					name: '商品名称商品名称商品名称商品名称商品名称',
-					price: '￥168',
-					slogan: '1235人付款'
-				},
-				{
-					goods_id: 5,
-					img: '../../static/img/goods/p6.jpg',
-					name: '商品名称商品名称商品名称商品名称商品名称',
-					price: '￥168',
-					slogan: '1235人付款'
-				},
-				{
-					goods_id: 6,
-					img: '../../static/img/goods/p7.jpg',
-					name: '商品名称商品名称商品名称商品名称商品名称',
-					price: '￥168',
-					slogan: '1235人付款'
-				},
-				{
-					goods_id: 7,
-					img: '../../static/img/goods/p8.jpg',
-					name: '商品名称商品名称商品名称商品名称商品名称',
-					price: '￥168',
-					slogan: '1235人付款'
-				},
-				{
-					goods_id: 8,
-					img: '../../static/img/goods/p9.jpg',
-					name: '商品名称商品名称商品名称商品名称商品名称',
-					price: '￥168',
-					slogan: '1235人付款'
-				},
-				{
-					goods_id: 9,
-					img: '../../static/img/goods/p10.jpg',
-					name: '商品名称商品名称商品名称商品名称商品名称',
-					price: '￥168',
-					slogan: '1235人付款'
-				}
-			],
+			productList: [],
+			stopLoadProd: false,
 			loadingText: '正在加载...'
 		};
 	},
@@ -201,25 +123,8 @@ export default {
 	},
 	//上拉加载，需要自己在page.json文件中配置"onReachBottomDistance"
 	onReachBottom() {
-		uni.showToast({ title: '触发上拉加载' });
-		let len = this.productList.length;
-		if (len >= 40) {
-			this.loadingText = '到底了';
-			return false;
-		}
-		// 演示,随机加入商品,生成环境请替换为ajax请求
-		let end_goods_id = this.productList[len - 1].goods_id;
-		for (let i = 1; i <= 10; i++) {
-			let goods_id = end_goods_id + i;
-			let p = {
-				goods_id: goods_id,
-				img:
-					'../../static/img/goods/p' + (goods_id % 10 == 0 ? 10 : goods_id % 10) + '.jpg',
-				name: '商品名称商品名称商品名称商品名称商品名称',
-				price: '￥168',
-				slogan: '1235人付款'
-			};
-			this.productList.push(p);
+		if(!this.stopLoadProd){
+			this.loadProd(this.queryProdParam)
 		}
 	},
 	onLoad() {
@@ -230,6 +135,11 @@ export default {
 		this.Timer();
 		//加载活动专区
 		this.loadPromotion();
+		// 加载首页活动区内容
+		this.loadActives();
+		// 加载首页导航菜单
+		this.loadMenus();
+		this.loadProd(this.queryProdParam);
 	},
 	onPageScroll(scrollObj){
 		if(scrollObj.scrollTop > 60){
@@ -334,9 +244,53 @@ export default {
 				url:'../msg/msg'
 			})
 		},
+		// 获取首页活动区内容
+		loadActives(){
+			uni.request({
+				url: 'http://localhost:3000/indexActives',
+				method: 'GET',
+				success: res => {
+					this.swiperList = res.data.data
+				},
+				fail: () => {},
+				complete: () => {}
+			});
+		},
+		// 获取首页导航菜单
+		loadMenus(){
+			uni.request({
+				url: 'http://localhost:3000/indexMenus',
+				method: 'GET',
+				success: res => {
+					this.categoryList = res.data.data
+				},
+				fail: () => {},
+				complete: () => {}
+			});
+		},
+		// 获取首页商品
+		loadProd(param){
+			uni.request({
+				url: 'http://localhost:3000/getProducts',
+				method: 'GET',
+				data: param,
+				success: res => {
+					this.productList = this.productList.concat(res.data.data)
+					console.log(res.data.data)
+					if(res.data.data.length < this.queryProdParam.pageSize){
+						this.loadingText = '到底了';
+						this.stopLoadProd = true;
+					}
+					this.queryProdParam.page++;
+				},
+				fail: () => {},
+				complete: () => {}
+			});
+		
+		},
 		//轮播图跳转
 		toSwiper(swiper) {
-			uni.showToast({ title: swiper.src, icon: 'none' });
+			uni.showToast({ title: swiper.imgpath, icon: 'none' });
 		},
 		//分类跳转
 		toCategory(e) {
@@ -654,10 +608,6 @@ page{position: relative;}
 					color: #e65339;
 					font-size: 30upx;
 					font-weight: 600;
-				}
-				.slogan {
-					color: #807c87;
-					font-size: 24upx;
 				}
 			}
 		}
