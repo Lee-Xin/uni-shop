@@ -248,9 +248,9 @@ export default {
 		// 获取首页活动区内容
 		loadActives(){
 			httpApi.loadActives().then(res => {
-				cconsole.log(res);
+				this.swiperList = res.data
 			}).catch(e => {
-				cconsole.log(e);
+				console.log(e);
 			})
 		},
 		// 获取首页导航菜单
