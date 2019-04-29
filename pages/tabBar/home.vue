@@ -63,7 +63,7 @@
 				<view
 					class="product"
 					v-for="product in productList"
-					:key="product.goods_id"
+					:key="product.pid"
 					@tap="toGoods(product)"
 				>
 					<image mode="widthFix" :src="'http://localhost:3000'+product.img"></image>
@@ -304,10 +304,10 @@ export default {
 			uni.showToast({ title: e.title, icon: 'none' });
 		},
 		//商品跳转
-		toGoods(e) {
-			uni.showToast({ title: '商品' + e.goods_id, icon: 'none' });
+		toGoods(product) {
+			uni.showToast({ title: '商品' + product.pid, icon: 'none' });
 			uni.navigateTo({
-				url: '../goods/goods'
+				url: '../goods/goods?pid='+product.pid
 			});
 		}
 	}

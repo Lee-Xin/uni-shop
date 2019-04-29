@@ -126,11 +126,11 @@
 		<!-- 商品主图轮播 -->
 		<view class="swiper-box">
 			<swiper circular="true" autoplay="true" @change="swiperChange">
-				<swiper-item v-for="swiper in swiperList" :key="swiper.id">
-					<image :src="swiper.img" @tap="toSwiper(swiper)"></image>
+				<swiper-item v-for="(swiper, index) in goodsData.images" :key="'swiper'+index">
+					<image :src="'http://localhost:3000'+swiper" @tap="toSwiper(swiper)"></image>
 				</swiper-item>
 			</swiper>
-			<view class="indicator">{{currentSwiper+1}}/{{swiperList.length}}</view>
+			<view class="indicator">{{currentSwiper+1}}/{{goodsData.images.length}}</view>
 		</view>
 		<!-- 标题 价格 -->
 		<view class="info-box goods-info">
@@ -204,12 +204,7 @@ export default {
 			
 			
 			//轮播主图数据
-			swiperList: [
-				{ id: 1, img: 'https://s2.ax1x.com/2019/03/28/AdOfUJ.jpg' },
-				{ id: 2, img: 'https://s2.ax1x.com/2019/03/28/AdOWE4.jpg' },
-				{ id: 3, img: 'https://s2.ax1x.com/2019/03/28/AdO2bF.jpg' },
-				{ id: 4, img: 'https://s2.ax1x.com/2019/03/28/AdOh59.jpg' }
-			],
+			swiperList: [],
 			//轮播图下标
 			currentSwiper: 0,
 			anchorlist:[],//导航条锚点
@@ -220,9 +215,10 @@ export default {
 			// 商品信息
 			goodsData:{
 				id:1,
-				name:"商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题",
-				price:"127.00",
+				name:"",
+				price:"",
 				number:1,
+				images: [],
 				service:[
 					{name:"正品保证",description:"此商品官方保证为正品"},
 					{name:"极速退款",description:"此商品享受退货极速退款服务"},
@@ -249,7 +245,7 @@ export default {
 		this.showBack = false;
 		// #endif
 		//option为object类型，会序列化上个页面传递的参数
-		console.log(option.cid); //打印出上个页面传递的参数。
+		this.productInfo(option.pid);
 	},
 	onReady(){
 		this.calcAnchor();//计算锚点高度，页面数据是ajax加载时，请把此行放在数据渲染完成事件中执行以保证高度计算正确
@@ -274,6 +270,27 @@ export default {
 		
 	},
 	methods: {
+		// 商品信息
+		productInfo(pid){
+			uni.request({
+				url: 'http://localhost:3000/productInfo',
+				data: {
+					pid: pid
+				},
+				method: 'GET',
+				success: res => {
+					if(res.data.success){
+						let data = res.data.data
+						this.goodsData.images = data.images
+						this.goodsData.name = data.detail
+						this.goodsData.price = `${data.minPrice}-${data.maxPrice}`
+						
+					}
+				},
+				fail: () => {},
+				complete: () => {}
+			});
+		},
 		//轮播图指示器
 		swiperChange(event) {
 			this.currentSwiper = event.detail.current;
