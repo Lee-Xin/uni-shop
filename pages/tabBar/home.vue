@@ -102,7 +102,7 @@ export default {
 			Promotion: [],
 			queryProdParam: {
 				page: 1,
-				pageSize: 10
+				pageSize: 4
 			},
 			//猜你喜欢列表
 			productList: [],
@@ -255,34 +255,24 @@ export default {
 		},
 		// 获取首页导航菜单
 		loadMenus(){
-			uni.request({
-				url: 'http://localhost:3000/indexMenus',
-				method: 'GET',
-				success: res => {
-					this.categoryList = res.data.data
-				},
-				fail: () => {},
-				complete: () => {}
-			});
+			httpApi.indexMenus().then(res => {
+				this.categoryList = res.data
+			}).catch(e => {
+				console.log(e);
+			})
 		},
 		// 获取首页商品
 		loadProd(param){
-			uni.request({
-				url: 'http://localhost:3000/getProducts',
-				method: 'GET',
-				data: param,
-				success: res => {
-					this.productList = this.productList.concat(res.data.data)
-					console.log(res.data.data)
-					if(res.data.data.length < this.queryProdParam.pageSize){
-						this.loadingText = '到底了';
-						this.stopLoadProd = true;
-					}
-					this.queryProdParam.page++;
-				},
-				fail: () => {},
-				complete: () => {}
-			});
+			httpApi.loadProd(param).then(res => {
+				this.productList = this.productList.concat(res.data)
+				if(res.data.length < this.queryProdParam.pageSize){
+					this.loadingText = '到底了';
+					this.stopLoadProd = true;
+				}
+				this.queryProdParam.page++;
+			}).catch(e => {
+				console.log(e);
+			})
 		
 		},
 		//轮播图跳转

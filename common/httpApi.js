@@ -5,7 +5,13 @@ export default {
 	loadActives (param){
 		return http.get(domain.requestHost + '/indexActives', param)
 	},
-	getCategory (param){
+	indexMenus(param){
+		return http.get(domain.requestHost + '/indexMenus', param)
+	},
+	getCategory(param){
 		return http.get(domain.requestHost + '/getCategoryByParentId', param)
+	},
+	loadProd(param){
+		return http.get(domain.requestHost + '/getProducts', param)
 	}
 }

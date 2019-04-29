@@ -11,8 +11,8 @@
 		<!-- 商品列表 -->
 		<view class="goods-list">
 			<view class="product-list">
-				<view class="product" v-for="(goods) in goodsList" :key="goods.goods_id" @tap="toGoods(goods)">
-					<image mode="widthFix" :src="goods.img"></image>
+				<view class="product" v-for="goods in goodsList" :key="goods.pid" @tap="toGoods(goods)">
+					<image mode="widthFix" :src="domain.assetsHost+goods.img"></image>
 					<view class="name">{{goods.name}}</view>
 					<view class="info">
 						<view class="price">{{goods.price}}</view>
@@ -27,6 +27,7 @@
 
 <script>
 	import httpApi from '@/common/httpApi.js'
+	import config from '@/common/config.js'
 	export default {
 		data() {
 			return {
@@ -39,15 +40,20 @@
 					{text:"价格",selected:false,orderbyicon:['sheng','jiang'],orderby:0},
 					{text:"好评",selected:false,orderbyicon:false,orderby:0}
 				],
-				orderby:"sheng"
+				orderby:"sheng",
+				queryProdParam: {
+					page: 1,
+					pageSize: 4
+				},
+				domain: config.domain
 			};
 		},
-		onLoad: function (option) { //option为object类型，会序列化上个页面传递的参数
+		onLoad (option) { //option为object类型，会序列化上个页面传递的参数
 			console.log(option.cid); //打印出上个页面传递的参数。
 			uni.setNavigationBarTitle({
 				title: option.name
 			});
-			
+			this.loadProds({category_id: option.cid})
 			//兼容H5下排序栏位置
 			// #ifdef H5
 				if(document.getElementsByTagName('uni-page-head')[0]){
@@ -88,14 +94,22 @@
 				this.goodsList = [];
 				
 			},
-			loadGoods({page}){
-				
+			loadProds(param){
+				httpApi.loadProd(param).then(res => {
+					this.goodsList = this.goodsList.concat(res.data)
+					if(res.data.length < this.queryProdParam.pageSize){
+						this.loadingText = '到底了';
+						this.stopLoadProd = true;
+					}
+					this.queryProdParam.page++;
+				}).catch(e => {
+					console.log(e);
+				})
 			},
 			//商品跳转
 			toGoods(e){
-				uni.showToast({title: '商品'+e.goods_id,icon:"none"});
 				uni.navigateTo({
-					url: '../goods/goods' 
+					url: '../goods/goods?pid='+e.pid
 				});
 			},
 			//排序类型
