@@ -4,5 +4,8 @@ const domain = config.domain
 export default {
 	loadActives (param){
 		return http.get(domain.requestHost + '/indexActives', param)
+	},
+	getCategory (param){
+		return http.get(domain.requestHost + '/getCategoryByParentId', param)
 	}
 }
