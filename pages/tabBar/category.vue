@@ -12,24 +12,23 @@
 		<view class="category-list">
 			<!-- 左侧分类导航 -->
 			<scroll-view  scroll-y="true" class="left" >
-                <view class="row" v-for="(category,index) in categoryList" :key="category.id" :class="[index==showCategoryIndex?'on':'']" @tap="showCategory(index)">
+                <view class="row" v-for="category in mainCateList" :key="category.id" :class="[category.id==showCategoryIndex?'on':'']" @tap="showCategory(category.id)">
 					<view class="text">
 						<view class="block"></view>
-						{{category.title}}
+						{{category.name}}
 					</view>
 				</view>
-				
             </scroll-view>
 			<!-- 右侧子导航 -->
 			<scroll-view  scroll-y="true" class="right" >
-			    <view class="category" v-for="(category,index) in categoryList" :key="category.id" v-show="index==showCategoryIndex" >
-					<view class="banner">
+			    <view class="category">
+					<!-- <view v-if="category.banner" class="banner">
 						<image :src="category.banner"></image>
-					</view>
+					</view> -->
 					<view class="list">
-						<view class="box" v-for="(box,i) in category.list" :key="i" @tap="toCategory(box)">
-							<image :src="'../../static/img/category/list/'+box.img"></image>
-							<view class="text">{{box.name}}</view>
+						<view class="box" v-for="category in subCateList" :key="category.id" @tap="toCategory(category)">
+							<image :src="'' + assetsHost + category.img"></image>
+							<view class="text">{{category.name}}</view>
 						</view>
 					</view>
 				</view>
@@ -39,52 +38,18 @@
 </template>
 <script>
 	import SearchTip from '@/components/search-tip.vue'
+	import httpApi from '@/common/httpApi.js'
+	import config from '@/common/config.js'
 	export default {
 		components: {SearchTip},
 		data() {
 			return {
 				showCategoryIndex:0,
 				headerPosition:"fixed",
-				//分类列表
-				categoryList:[
-					{id:1,title:'家用电器',banner:'../../static/img/category/banner.jpg',list:[
-						{name:'冰箱',	img:'1.jpg'},
-						{name:'电视',	img:'2.jpg'},
-						{name:'空调',	img:'3.jpg'},
-						{name:'洗衣机',	img:'4.jpg'},
-						{name:'风扇',	img:'5.jpg'},
-						{name:'燃气灶',	img:'6.jpg'},
-						{name:'热水器',	img:'7.jpg'},
-						{name:'电吹风',	img:'8.jpg'},
-						{name:'电饭煲',	img:'9.jpg'}
-					]},
-					{id:2,title:'办公用品',banner:'../../static/img/category/banner.jpg',list:[
-						{name:'打印机',	img:'1.jpg'},
-						{name:'路由器',	img:'2.jpg'},
-						{name:'扫描仪',	img:'3.jpg'},
-						{name:'投影仪',	img:'4.jpg'},
-						{name:'墨盒',	img:'5.jpg'},
-						{name:'纸类',	img:'6.jpg'}
-					]},
-					{id:3,title:'日常用品',banner:'../../static/img/category/banner.jpg',list:[
-						{name:'茶具',	img:'1.jpg'},
-						{name:'花瓶',	img:'2.jpg'},
-						{name:'纸巾',	img:'3.jpg'},
-						{name:'毛巾',	img:'4.jpg'},
-						{name:'牙膏',	img:'5.jpg'},
-						{name:'保鲜膜',	img:'6.jpg'},
-						{name:'保鲜袋',	img:'7.jpg'}
-					]},
-					{id:4,title:'蔬菜水果',banner:'../../static/img/category/banner.jpg',list:[
-						{name:'苹果',	img:'1.jpg'},
-						{name:'芒果',	img:'2.jpg'},
-						{name:'椰子',	img:'3.jpg'},
-						{name:'橙子',	img:'4.jpg'},
-						{name:'奇异果',	img:'5.jpg'},
-						{name:'玉米',	img:'6.jpg'},
-						{name:'百香果',	img:'7.jpg'}
-					]},
-				]
+				// 主分类
+				mainCateList: [],
+				subCateList: [],
+				assetsHost: config.domain.assetsHost,
 			}
 		},
 		onPageScroll(e){
@@ -96,18 +61,24 @@
 			}
 		},
 		onLoad() {
-			
+			httpApi.getCategory({parentId: 0}).then(res => {
+				this.mainCateList = res.data
+				// 查询第一个分类
+				this.showCategory(this.mainCateList[0].id)
+			}).catch(e => {
+				console.log(e);
+			})
 		},
 		methods: {
-			//消息列表
-			toMsg(){
-				uni.navigateTo({
-					url:'../msg/msg'
-				})
-			},
 			//分类切换显示
-			showCategory(index){
-				this.showCategoryIndex = index;
+			showCategory(parentId){
+				this.showCategoryIndex = parentId;
+				httpApi.getCategory({parentId: parentId}).then(res => {
+					console.log(res);
+					this.subCateList = res.data
+				}).catch(e => {
+					console.log(e);
+				})
 			},
 			toCategory(e){
 				//uni.showToast({title: e.name,icon:"none"});
