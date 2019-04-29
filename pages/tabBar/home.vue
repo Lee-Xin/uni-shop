@@ -83,6 +83,7 @@
 import SearchTip from '@/components/search-tip.vue'
 import SwiperImages from '@/components/swiper-images.vue'
 import ActiveFlag from '@/components/active-flag.vue'
+import httpApi from '@/common/httpApi.js'
 export default {
 	components: {SearchTip, SwiperImages, ActiveFlag},
 	data() {
@@ -246,15 +247,11 @@ export default {
 		},
 		// 获取首页活动区内容
 		loadActives(){
-			uni.request({
-				url: 'http://localhost:3000/indexActives',
-				method: 'GET',
-				success: res => {
-					this.swiperList = res.data.data
-				},
-				fail: () => {},
-				complete: () => {}
-			});
+			httpApi.loadActives().then(res => {
+				cconsole.log(res);
+			}).catch(e => {
+				cconsole.log(e);
+			})
 		},
 		// 获取首页导航菜单
 		loadMenus(){

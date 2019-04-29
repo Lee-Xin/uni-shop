@@ -18,6 +18,7 @@
 
 <script>
 	import SearchContent from '@/components/search-content.vue'
+	import http from '@/common/http.js'
 	export default {
 		components:{SearchContent},
 		data() {
@@ -31,6 +32,9 @@
 			setTimeout(function() {
 				uni.stopPullDownRefresh();
 			}, 200);
+		},
+		onLoad(){
+			http();
 		},
 		methods: {
 			doSearch(){
