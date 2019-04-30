@@ -89,7 +89,7 @@
 				<view class="content">
 					<view class="row" v-for="(item,index) in goodsData.service" :key="index">
 						<view class="title">{{item.name}}</view>
-						<view class="description">{{item.description}}</view>
+						<view class="description">{{item.des}}</view>
 					</view>
 				</view>
 				<view class="btn"><view class="button" @tap="hideService">完成</view></view>
@@ -219,11 +219,7 @@ export default {
 				price:"",
 				number:1,
 				images: [],
-				service:[
-					{name:"正品保证",description:"此商品官方保证为正品"},
-					{name:"极速退款",description:"此商品享受退货极速退款服务"},
-					{name:"7天退换",description:"此商品享受7天无理由退换服务"}
-				],
+				service: null,
 				spec:["XS","S","M","L","XL","XXL"],
 				comment:{
 					number:102,
@@ -284,7 +280,7 @@ export default {
 						this.goodsData.images = data.images
 						this.goodsData.name = data.detail
 						this.goodsData.price = `${data.minPrice}-${data.maxPrice}`
-						
+						this.goodsData.service = data.service
 					}
 				},
 				fail: () => {},
@@ -895,6 +891,8 @@ page {
 		.content {
 			width: 100%;
 			padding: 20upx 0;
+			overflow-y: auto;
+			max-height: calc(100% - 200upx);
 		}
 		.btn {
 			width: 100%;
