@@ -89,7 +89,7 @@
 				<view class="content">
 					<view class="row" v-for="(item,index) in goodsData.service" :key="index">
 						<view class="title">{{item.name}}</view>
-						<view class="description">{{item.description}}</view>
+						<view class="description">{{item.des}}</view>
 					</view>
 				</view>
 				<view class="btn"><view class="button" @tap="hideService">完成</view></view>
@@ -126,11 +126,11 @@
 		<!-- 商品主图轮播 -->
 		<view class="swiper-box">
 			<swiper circular="true" autoplay="true" @change="swiperChange">
-				<swiper-item v-for="swiper in goodsData.images" :key="swiper.id">
-					<image :src="domain.assetsHost + swiper" @tap="toSwiper(swiper)"></image>
+				<swiper-item v-for="(swiper, index) in goodsData.images" :key="'swiper'+index">
+					<image :src="'http://localhost:3000'+swiper" @tap="toSwiper(swiper)"></image>
 				</swiper-item>
 			</swiper>
-			<view class="indicator">{{currentSwiper+1}}/{{swiperList.length}}</view>
+			<view class="indicator">{{currentSwiper+1}}/{{goodsData.images.length}}</view>
 		</view>
 		<!-- 标题 价格 -->
 		<view class="info-box goods-info">
@@ -188,7 +188,6 @@
 </template>
 
 <script>
-	import config from '@/common/config'
 export default {
 	data() {
 		return {
@@ -201,14 +200,11 @@ export default {
 			// #ifndef MP
 			showBack:true,
 			// #endif
-			domain: config.domain,
+			
+			
+			
 			//轮播主图数据
-			swiperList: [
-				{ id: 1, img: 'https://s2.ax1x.com/2019/03/28/AdOfUJ.jpg' },
-				{ id: 2, img: 'https://s2.ax1x.com/2019/03/28/AdOWE4.jpg' },
-				{ id: 3, img: 'https://s2.ax1x.com/2019/03/28/AdO2bF.jpg' },
-				{ id: 4, img: 'https://s2.ax1x.com/2019/03/28/AdOh59.jpg' }
-			],
+			swiperList: [],
 			//轮播图下标
 			currentSwiper: 0,
 			anchorlist:[],//导航条锚点
@@ -219,14 +215,11 @@ export default {
 			// 商品信息
 			goodsData:{
 				id:1,
-				name:"商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题",
-				price:"127.00",
+				name:"",
+				price:"",
 				number:1,
-				service:[
-					{name:"正品保证",description:"此商品官方保证为正品"},
-					{name:"极速退款",description:"此商品享受退货极速退款服务"},
-					{name:"7天退换",description:"此商品享受7天无理由退换服务"}
-				],
+				images: [],
+				service: null,
 				spec:["XS","S","M","L","XL","XXL"],
 				comment:{
 					number:102,
@@ -287,7 +280,7 @@ export default {
 						this.goodsData.images = data.images
 						this.goodsData.name = data.detail
 						this.goodsData.price = `${data.minPrice}-${data.maxPrice}`
-						
+						this.goodsData.service = data.service
 					}
 				},
 				fail: () => {},
@@ -898,6 +891,8 @@ page {
 		.content {
 			width: 100%;
 			padding: 20upx 0;
+			overflow-y: auto;
+			max-height: calc(100% - 200upx);
 		}
 		.btn {
 			width: 100%;
