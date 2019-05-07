@@ -40,8 +40,7 @@
 				</view>
 			</view>
 			<view class="btn">
-				<view class="joinCart" @tap="joinCart">加入购物车</view>
-				<view class="buy" @tap="buy">立即购买</view>
+				<view class="buy" @tap="buy">拼团</view>
 			</view>
 		</view>
 		<!-- share弹窗 -->
@@ -96,31 +95,17 @@
 			</view>
 		</view>
 		<!-- 规格-模态层弹窗 -->
-		<view class="popup spec" :class="specClass" @touchmove.stop.prevent="discard" @tap="hideSpec">
+		<view class="popup actives" :class="activeClass" @touchmove.stop.prevent="discard" @tap="hideActive">
 			<!-- 遮罩层 -->
 			<view class="mask"></view>
 			<view class="layer" @tap.stop="discard">
 				<view class="content">
-					<view class="title">选择规格：</view>
-					<view class="sp">
-						<view v-for="(item,index) in goodsData.spec" :class="[index==selectSpec?'on':'']" @tap="setSelectSpec(index)" :key="index">{{item}}</view>
-					</view>
-					<view class="length" v-if="selectSpec!=null">
-						<view class="text">数量</view>
-						<view class="number">
-							<view class="sub" @tap.stop="sub">
-								<view class="icon jian"></view>
-							</view>
-							<view class="input" @tap.stop="discard">
-								<input type="number" v-model="goodsData.number" />
-							</view>
-							<view class="add"  @tap.stop="add">
-								<view class="icon jia"></view>
-							</view>
-						</view>
+					<view class="row" v-for="(item,index) in goodsData.actives" :key="index">
+						<view class="title">{{item.name}}</view>
+						<view class="description">{{item.des}}</view>
 					</view>
 				</view>
-				<view class="btn"><view class="button" @tap="hideSpec">完成</view></view>
+				<view class="btn"><view class="button" @tap="hideService">完成</view></view>
 			</view>
 		</view>
 		<!-- 商品主图轮播 -->
@@ -134,53 +119,37 @@
 		</view>
 		<!-- 标题 价格 -->
 		<view class="info-box goods-info">
-			<view class="price">￥{{goodsData.price}}</view>
-			<view class="title">
-				{{goodsData.name}}
+			<view class="price">
+				￥{{goodsData.price}}
+				<span class="title">
+					{{goodsData.name}}
+				</span>
+			</view>
+			<view class="desc">
+				{{goodsData.detail}}
 			</view>
 		</view>
 		<!-- 服务-规则选择 -->
 		<view class="info-box spec">
 			<view class="row" @tap="showService">
 				<view class="text">服务</view>
-				<view class="content"><view class="serviceitem" v-for="(item,index) in goodsData.service" :key="index">{{item.name}}</view></view>
-				<view class="arrow"><view class="icon xiangyou"></view></view>
-			</view>
-			<view class="row" @tap="showSpec(false)">
-				<view class="text">选择</view>
 				<view class="content">
-					<view>选择规格：</view>
-					<view class="sp">
-						<view v-for="(item,index) in goodsData.spec" :key="index" :class="[index==selectSpec?'on':'']">{{item}}</view>
-					</view>
-					
+					<view class="serviceitem" v-for="(item,index) in goodsData.service" :key="index">{{item.name}}</view>
 				</view>
 				<view class="arrow"><view class="icon xiangyou"></view></view>
 			</view>
-		</view>
-		<!-- 评价 -->
-		<view class="info-box comments" id="comments">
-			<view class="row">
-				<view class="text">商品评价({{goodsData.comment.number}})</view>
-				<view class="arrow">
-					<view class="show" @tap="showComments(goodsData.id)">
-						查看全部
-						<view class="icon xiangyou"></view>
+			<view class="row" @tap="showActive">
+				<view class="text">活动</view>
+				<view class="content">
+					<view class="activeItem">
+						<view v-for="(item,index) in goodsData.actives" :key="index">{{item.name}}</view>
 					</view>
 				</view>
-			</view>
-			<view class="comment">
-				<view class="user-info">
-					<view class="face"><image :src="goodsData.comment.userface"></image></view>
-					<view class="username">{{goodsData.comment.username}}</view>
-				</view>
-				<view class="content">
-					{{goodsData.comment.content}}
-				</view>
+				<view class="arrow"><view class="icon xiangyou"></view></view>
 			</view>
 		</view>
 		<!-- 详情 -->
-		<view class="description">
+		<view class="description" id="comments">
 			<view class="title">———— 商品详情 ————</view>
 			<view class="content"><rich-text :nodes="descriptionStr"></rich-text></view>
 		</view>
@@ -188,6 +157,7 @@
 </template>
 
 <script>
+import httpApi from '@/common/httpApi.js'
 export default {
 	data() {
 		return {
@@ -210,12 +180,13 @@ export default {
 			anchorlist:[],//导航条锚点
 			selectAnchor:0,//选中锚点
 			serviceClass: '',//服务弹窗css类，控制开关动画
-			specClass: '',//规格弹窗css类，控制开关动画
+			activeClass: '',//规格弹窗css类，控制开关动画
 			shareClass:'',//分享弹窗css类，控制开关动画
 			// 商品信息
 			goodsData:{
 				id:1,
 				name:"",
+				detail: "",
 				price:"",
 				number:1,
 				images: [],
@@ -248,7 +219,7 @@ export default {
 	},
 	onPageScroll(e) {
 		//锚点切换
-		this.selectAnchor = e.scrollTop>=this.anchorlist[2].top?2:e.scrollTop>=this.anchorlist[1].top?1:0;
+		this.selectAnchor = e.scrollTop>=this.anchorlist[1].top?1:e.scrollTop>=this.anchorlist[0].top?1:0;
 		//导航栏渐变
 		let tmpY = 375;
 		e.scrollTop = e.scrollTop > tmpY ? 375 : e.scrollTop;
@@ -268,24 +239,28 @@ export default {
 	methods: {
 		// 商品信息
 		productInfo(pid){
-			uni.request({
-				url: 'http://localhost:3000/productInfo',
-				data: {
-					pid: pid
-				},
-				method: 'GET',
-				success: res => {
-					if(res.data.success){
-						let data = res.data.data
-						this.goodsData.images = data.images
-						this.goodsData.name = data.detail
-						this.goodsData.price = `${data.minPrice}-${data.maxPrice}`
-						this.goodsData.service = data.service
-					}
-				},
-				fail: () => {},
-				complete: () => {}
-			});
+			httpApi.productInfo({pid: pid}).then(res => {
+				if(res.success){
+					let data = res.data
+					this.goodsData.images = data.images
+					this.goodsData.name = data.name
+					this.goodsData.detail = data.detail
+					this.goodsData.price = `${data.minPrice}`
+					this.goodsData.service = data.service
+					this.goodsData.actives = data.actives
+				}
+			})
+			httpApi.productProperty({pid: pid}).then(res => {
+				if(res.success){
+					let data = res.data
+					console.log(data);
+				}
+			})
+			httpApi.isFavorite({pid: pid}).then(res => {
+				if(res.success){
+					console.log(res,data);
+				}
+			})
 		},
 		//轮播图指示器
 		swiperChange(event) {
@@ -320,7 +295,7 @@ export default {
 		// 加入购物车
 		joinCart(){
 			if(this.selectSpec==null){
-				return this.showSpec(()=>{
+				return this.showActive(()=>{
 					uni.showToast({title: "已加入购物车"});
 				});
 			}
@@ -329,7 +304,7 @@ export default {
 		//立即购买
 		buy(){
 			if(this.selectSpec==null){
-				return this.showSpec(()=>{
+				return this.showActive(()=>{
 					this.toConfirmation();
 				});
 			}
@@ -378,7 +353,6 @@ export default {
 		calcAnchor(){
 			this.anchorlist=[
 				{name:'主图',top:0},
-				{name:'评价',top:0},
 				{name:'详情',top:0}
 			]
 			let commentsView = uni.createSelectorQuery().select("#comments");
@@ -389,8 +363,8 @@ export default {
 					statusbarHeight = plus.navigator.getStatusbarHeight()
 				// #endif
 				let headerHeight = uni.upx2px(100);
-				this.anchorlist[1].top = data.top - headerHeight - statusbarHeight;
-				this.anchorlist[2].top = data.bottom - headerHeight - statusbarHeight;
+				this.anchorlist[0].top = data.top - headerHeight - statusbarHeight;
+				this.anchorlist[1].top = data.bottom - headerHeight - statusbarHeight;
 				
 			}).exec();
 		},
@@ -411,23 +385,15 @@ export default {
 			}, 200);
 		},
 		//规格弹窗
-		showSpec(fun) {
-			console.log('show');
-			this.specClass = 'show';
-			this.specCallback = fun;
-		},
-		specCallback(){
-			return;
+		showActive(fun) {
+			this.activeClass = 'show';
 		},
 		//关闭规格弹窗
-		hideSpec() {
-			this.specClass = 'hide';
+		hideActive() {
+			this.activeClass = 'hide';
 			//回调
-
-			this.selectSpec&&this.specCallback&&this.specCallback();
-			this.specCallback = false;
 			setTimeout(() => {
-				this.specClass = 'none';
+				this.activeClass = 'none';
 			}, 200);
 		},
 		discard() {
@@ -687,21 +653,32 @@ page {
 }
 
 .goods-info {
+	line-height: 20upx;
 	.price {
 		font-size: 46upx;
 		font-weight: 600;
 		color: #f47925;
 	}
 	.title {
+		margin-left: 20upx;
 		font-size: 30upx;
+		line-height: 46upx;
+		color: #000;
+		font-weight: 500;
+	}
+	.desc{
+		margin-top: 16upx;
+		font-size: 24upx;
+		color: #a2a2a2;
 	}
 }
 .spec {
+	margin-bottom: 0;
 	.row {
 		width: 100%;
 		display: flex;
 		align-items: center;
-		margin: 0 0 30upx 0;
+		padding: 10upx 0;
 		.text {
 			font-size: 24upx;
 			color: #a2a2a2;
@@ -714,21 +691,8 @@ page {
 			.serviceitem{
 				margin-right: 10upx;
 			}
-			.sp {
-				width: 100%;
-				display: flex;
-				view {
-					background-color: #f6f6f6;
-					padding: 5upx 10upx;
-					color: #999;
-					margin-right: 10upx;
-					font-size: 20upx;
-					border-radius: 5upx;
-					&.on{
-						border: solid 1upx #f47952;
-						padding: 4upx 8upx;
-					}
-				}
+			.activeItem{
+				margin-right: 10upx;
 			}
 		}
 		.arrow {
@@ -847,17 +811,15 @@ page {
 		.joinCart,
 		.buy {
 			height: 80upx;
-			padding: 0 40upx;
+			padding: 0 80upx;
 			color: #fff;
 			display: flex;
 			align-items: center;
 			font-size: 28upx;
+			background-color: #f47925;
 		}
 		.joinCart {
 			background-color: #f0b46c;
-		}
-		.buy {
-			background-color: #f06c7a;
 		}
 	}
 }
@@ -946,77 +908,18 @@ page {
 			}
 		}
 	}
-	&.spec {
-		.title {
-			font-size: 30upx;
+	&.actives {
+		.row {
 			margin: 30upx 0;
-		}
-		.sp {
-			display: flex;
-			view {
-				font-size: 28upx;
-				padding: 5upx 20upx;
-				border-radius: 8upx;
-				margin: 0 30upx 20upx 0;
-				background-color: #f6f6f6;
-				&.on {
-					padding: 3upx 18upx;
-					border: solid 1upx #f47925;
-				}
-			}
-		}
-		.length{
-			margin-top: 30upx;
-			border-top: solid 1upx #aaa;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			padding-top: 20upx;
-			.text{
+			.title {
 				font-size: 30upx;
+				margin: 10upx 0;
 			}
-			.number{
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				.input{
-					width: 80upx;
-					height: 60upx;
-					margin: 0 10upx;
-					background-color: #f3f3f3;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					text-align: center;
-					input{
-						width: 80upx;
-						height: 60upx;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						text-align: center;
-						font-size: 26upx;
-					}
-				}
-				
-				.sub ,.add{
-					width: 60upx;
-					height: 60upx;
-					background-color: #f3f3f3;
-					border-radius: 5upx;
-					.icon{
-						font-size: 30upx;
-						width: 60upx;
-						height: 60upx;
-						display: flex;
-						justify-content: center;
-						align-items: center;
-						
-					}
-				}
+			.description {
+				font-size: 28upx;
+				color: #999;
 			}
 		}
-		
 	}
 }
 .share{

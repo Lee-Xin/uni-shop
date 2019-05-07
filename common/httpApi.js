@@ -16,5 +16,14 @@ export default {
 	},
 	loadProd(param){
 		return http.get(domain.requestHost + '/getProducts', param)
+	},
+	productInfo(param){
+		return http.get(domain.requestHost + '/productInfo', param)
+	},
+	productProperty(param){
+		return http.get(domain.requestHost + '/productProperty', param)
+	},
+	isFavorite(param){
+		return http.post(domain.requestHost + '/isFavorite', param)
 	}
 }

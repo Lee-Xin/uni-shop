@@ -1,3 +1,5 @@
+let token = localStorage.getItem('token') || ''
+
 export default {
 	get(url, data){
 		return new Promise((resolve, reject) => {
@@ -5,6 +7,9 @@ export default {
 				url: url,
 				method: 'GET',
 				data: data,
+				header: {
+					'token':token
+				},
 				success: res => {
 					resolve(res.data)
 				},
@@ -29,6 +34,9 @@ export default {
 				url: url,
 				method: 'POST',
 				data: data,
+				header: {
+					'token':token
+				},
 				success: res => {
 					resolve(res.data)
 				},
@@ -54,7 +62,8 @@ export default {
 				method: 'POST',
 				data: data,
 				headers: {
-					'Content-Type': 'multipart/form-data'
+					'Content-Type': 'multipart/form-data',
+					'token': token
 				},
 				success: res => {
 					resolve(res.data)
