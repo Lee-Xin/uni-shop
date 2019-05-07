@@ -55,7 +55,7 @@
 			}
         },
 		{
-		    "path" : "pages/goods/goods",
+		    "path": "pages/goods/goods",
 		    "style" : {
 				"navigationBarTitleText" : "",
 				"navigationBarBackgroundColor":"#f1f1f1",
@@ -67,6 +67,13 @@
 					"titleNView": false ,//禁用原生导航栏
 					"bounce":"none"
 				}
+			}
+		},
+		{
+		    "path" : "pages/goods/goods-category",
+		    "style" : {
+				"navigationBarTitleText" : "",
+				"enablePullDownRefresh": true
 			}
 		},
 		{

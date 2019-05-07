@@ -283,7 +283,7 @@ export default {
 		toCategory(e) {
 			//uni.showToast({title: e.name,icon:"none"});
 			uni.navigateTo({
-				url: '../goods/goods-list?cid=' + e.id + '&name=' + e.name
+				url: '../goods/goods-category?parentId=' + e.id + '&name=' + e.name
 			});
 		},
 		//推荐商品跳转

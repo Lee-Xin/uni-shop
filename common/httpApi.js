@@ -5,6 +5,9 @@ export default {
 	loadActives (param){
 		return http.get(domain.requestHost + '/indexActives', param)
 	},
+	getProductsByParent (param){
+		return http.get(domain.requestHost + '/getProductsByParent', param)
+	},
 	indexMenus(param){
 		return http.get(domain.requestHost + '/indexMenus', param)
 	},
