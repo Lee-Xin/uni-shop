@@ -67,7 +67,7 @@
 </template>
 
 <script>
-
+	import httpApi from '@/common/httpApi.js'
 	export default {
 		data() {
 			return {
@@ -110,8 +110,13 @@
 			// #ifdef APP-PLUS
 			this.statusHeight = plus.navigator.getStatusbarHeight();
 			// #endif
+			this.loadAllProds()
 		},
 		methods: {
+			async loadAllProds(){
+				let res = await httpApi.loadCart()
+				console.log(res);
+			},
 			//控制左滑删除效果-begin
 			touchStart(index,event){
 				//多点触控不触发

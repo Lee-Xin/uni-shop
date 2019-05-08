@@ -34,5 +34,11 @@ export default {
 	},
 	addKeep(param){
 		return http.post(domain.requestHost + '/addFavorite', param)
+	},
+	toCart(param){
+		return http.post(domain.requestHost + '/toCart', param)
+	},
+	loadCart(){
+		return http.post(domain.requestHost + '/loadCart')
 	}
 }

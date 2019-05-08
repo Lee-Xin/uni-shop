@@ -40,7 +40,7 @@
 				</view>
 			</view>
 			<view class="btn">
-				<view class="buy" @tap="buy">拼团</view>
+				<view class="buy" @tap="joinCart">拼团</view>
 			</view>
 		</view>
 		<!-- share弹窗 -->
@@ -293,24 +293,6 @@ export default {
 		},
 		async disKeep(){
 			let res = await httpApi.disKeep({pid: this.spuId})
-			if(res.code === 'access_error'){
-				uni.showModal({
-					title: '系统提示',
-					content: '登录状态失效，是否前往登录？',
-					showCancel: true,
-					cancelText: '取消',
-					confirmText: '确定',
-					success: res => {
-						if(res.confirm){
-							uni.navigateTo({
-								url: '/pages/login/login'
-							})
-						}
-					},
-					fail: () => {},
-					complete: () => {}
-				});
-			}
 			if(res.success){
 				this.isKeep = res.data.isKeep
 			}
@@ -344,13 +326,33 @@ export default {
 			
 		},
 		// 加入购物车
-		joinCart(){
-			if(this.selectSpec==null){
-				return this.showActive(()=>{
-					uni.showToast({title: "已加入购物车"});
+		async joinCart(){
+			let res = await httpApi.toCart({pid: this.spuId})
+			if(res.success){
+				uni.showToast({
+					title: res.message,
+					mask: false,
+					icon: 'none',
+					duration: 1500
+				});
+			} else {
+				uni.showModal({
+					title: '系统提示',
+					content: '该商品已加入购物车，是否前往查看？',
+					showCancel: true,
+					cancelText: '取消',
+					confirmText: '确定',
+					success: res => {
+						if(res.confirm){
+							uni.switchTab({
+								url: '/pages/tabBar/cart'
+							})
+						}
+					},
+					fail: () => {},
+					complete: () => {}
 				});
 			}
-			uni.showToast({title: "已加入购物车"});
 		},
 		//立即购买
 		buy(){
