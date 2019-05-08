@@ -2,7 +2,7 @@
 	<view>
         <view class="logo">
 			<view class="img">
-				<img width="100" height="100" style="border-radius: 50%;" src="/static/img/logo2.jpg"/>
+				<image src="/static/img/logo2.jpg" mode="scaleToFill"></image>
 			</view>
 		</view>
 		<!-- 账号密码输入框 -->
@@ -135,7 +135,9 @@
 				httpApi.login({account: this.phoneNumber, password: md5PW}).then(res => {
 					if(res.success){
 						uni.hideLoading()
-						localStorage.setItem('token', res.data)
+						uni.setStorageSync('token', res.data);
+						this.$store.dispatch('setUserToken', res.data);
+						let pages = getCurrentPages();
 						uni.switchTab({
 							url: '/pages/tabBar/home'
 						})
@@ -205,6 +207,13 @@
 			.icon{
 				font-size:80upx;
 				margin: 0 30upx;
+			}
+		}
+	}
+	.logo{
+		.img{
+			uni-image{
+				height: 100%
 			}
 		}
 	}

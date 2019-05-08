@@ -23,7 +23,16 @@ export default {
 	productProperty(param){
 		return http.get(domain.requestHost + '/productProperty', param)
 	},
-	isFavorite(param){
+	async isFavorite(param){
 		return http.post(domain.requestHost + '/isFavorite', param)
+	},
+	login(param){
+		return http.post(domain.requestHost + '/login', param)
+	},
+	disKeep(param){
+		return http.post(domain.requestHost + '/disFavorite', param)
+	},
+	addKeep(param){
+		return http.post(domain.requestHost + '/addFavorite', param)
 	}
 }

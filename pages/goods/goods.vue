@@ -78,7 +78,6 @@
 					取消
 				</view>
 			</view>
-			
 		</view>
 		<!-- 服务-模态层弹窗 -->
 		<view class="popup service" :class="serviceClass" @touchmove.stop.prevent="discard" @tap="hideService">
@@ -111,7 +110,7 @@
 		<!-- 商品主图轮播 -->
 		<view class="swiper-box">
 			<swiper circular="true" autoplay="true" @change="swiperChange">
-				<swiper-item v-for="(swiper, index) in goodsData.images" :key="'swiper'+index">
+				<swiper-item v-for="(swiper, index) in goodsData.images" :key="index">
 					<image :src="'http://localhost:3000'+swiper" @tap="toSwiper(swiper)"></image>
 				</swiper-item>
 			</swiper>
@@ -200,6 +199,7 @@ export default {
 				}
 				
 			},
+			spuId: '',
 			selectSpec:null,//选中规格
 			isKeep:false,//收藏
 			//商品描述html
@@ -212,6 +212,7 @@ export default {
 		this.showBack = false;
 		// #endif
 		//option为object类型，会序列化上个页面传递的参数
+		this.spuId = option.pid || ''
 		this.productInfo(option.pid);
 	},
 	onReady(){
@@ -250,15 +251,9 @@ export default {
 					this.goodsData.actives = data.actives
 				}
 			})
-			httpApi.productProperty({pid: pid}).then(res => {
-				if(res.success){
-					let data = res.data
-					console.log(data);
-				}
-			})
 			httpApi.isFavorite({pid: pid}).then(res => {
 				if(res.success){
-					console.log(res,data);
+					this.isKeep = res.data.isKeep
 				}
 			})
 		},
@@ -290,7 +285,63 @@ export default {
 		},
 		//收藏
 		keep(){
-			this.isKeep = this.isKeep?false:true;
+			if(this.isKeep){
+				this.disKeep()
+			} else {
+				this.addKeep()
+			}
+		},
+		async disKeep(){
+			let res = await httpApi.disKeep({pid: this.spuId})
+			if(res.code === 'access_error'){
+				uni.showModal({
+					title: '系统提示',
+					content: '登录状态失效，是否前往登录？',
+					showCancel: true,
+					cancelText: '取消',
+					confirmText: '确定',
+					success: res => {
+						if(res.confirm){
+							uni.navigateTo({
+								url: '/pages/login/login'
+							})
+						}
+					},
+					fail: () => {},
+					complete: () => {}
+				});
+			}
+			if(res.success){
+				this.isKeep = res.data.isKeep
+			}
+		},
+		async addKeep(){
+			httpApi.addKeep({pid: this.spuId}).then(res => {
+				if(res.code === 'access_error'){
+					uni.showModal({
+						title: '系统提示',
+						content: '登录状态失效，是否前往登录？',
+						showCancel: true,
+						cancelText: '取消',
+						confirmText: '确定',
+						success: res => {
+							if(res.confirm){
+								uni.navigateTo({
+									url: '/pages/login/login'
+								})
+							}
+						},
+						fail: () => {},
+						complete: () => {}
+					});
+				}
+				if(res.success){
+					this.isKeep = res.data.isKeep
+				}
+			}).catch(e => {
+				console.log(e);
+			})
+			
 		},
 		// 加入购物车
 		joinCart(){

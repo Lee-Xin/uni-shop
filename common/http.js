@@ -1,4 +1,4 @@
-let token = localStorage.getItem('token') || ''
+let {getToken} = require('@/common/lib/commonFunc.js')
 
 export default {
 	get(url, data){
@@ -8,7 +8,7 @@ export default {
 				method: 'GET',
 				data: data,
 				header: {
-					'token':token
+					'Authorization': 'Bearer ' + getToken()
 				},
 				success: res => {
 					resolve(res.data)
@@ -35,7 +35,7 @@ export default {
 				method: 'POST',
 				data: data,
 				header: {
-					'token':token
+					'Authorization': 'Bearer ' + getToken()
 				},
 				success: res => {
 					resolve(res.data)
@@ -63,7 +63,7 @@ export default {
 				data: data,
 				headers: {
 					'Content-Type': 'multipart/form-data',
-					'token': token
+					'Authorization': 'Bearer ' + getToken()
 				},
 				success: res => {
 					resolve(res.data)
