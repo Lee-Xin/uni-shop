@@ -255,6 +255,8 @@ export default {
 				if(res.success){
 					this.isKeep = res.data.isKeep
 				}
+			}).catch((callback) => {
+				
 			})
 		},
 		//轮播图指示器
@@ -297,19 +299,38 @@ export default {
 				this.isKeep = res.data.isKeep
 			}
 		},
-		async addKeep(){
+		addKeep(){
 			httpApi.addKeep({pid: this.spuId}).then(res => {
-				if(res.code === 'access_error'){
+				this.isKeep = res.data.isKeep
+			}).catch(e => {
+				console.log(e.message);
+				if(e.callback){
+					e.callback()
+				}
+			})
+			
+		},
+		// 加入购物车
+		joinCart(){
+			httpApi.toCart({pid: this.spuId}).then(res => {
+				if(res.success){
+					uni.showToast({
+						title: res.message,
+						mask: false,
+						icon: 'none',
+						duration: 1500
+					});
+				} else {
 					uni.showModal({
 						title: '系统提示',
-						content: '登录状态失效，是否前往登录？',
+						content: '该商品已加入购物车，是否前往查看？',
 						showCancel: true,
 						cancelText: '取消',
 						confirmText: '确定',
 						success: res => {
 							if(res.confirm){
-								uni.navigateTo({
-									url: '/pages/login/login'
+								uni.switchTab({
+									url: '/pages/tabBar/cart'
 								})
 							}
 						},
@@ -317,42 +338,12 @@ export default {
 						complete: () => {}
 					});
 				}
-				if(res.success){
-					this.isKeep = res.data.isKeep
-				}
 			}).catch(e => {
-				console.log(e);
+				console.log(e.message);
+				if(e.callback){
+					e.callback()
+				}
 			})
-			
-		},
-		// 加入购物车
-		async joinCart(){
-			let res = await httpApi.toCart({pid: this.spuId})
-			if(res.success){
-				uni.showToast({
-					title: res.message,
-					mask: false,
-					icon: 'none',
-					duration: 1500
-				});
-			} else {
-				uni.showModal({
-					title: '系统提示',
-					content: '该商品已加入购物车，是否前往查看？',
-					showCancel: true,
-					cancelText: '取消',
-					confirmText: '确定',
-					success: res => {
-						if(res.confirm){
-							uni.switchTab({
-								url: '/pages/tabBar/cart'
-							})
-						}
-					},
-					fail: () => {},
-					complete: () => {}
-				});
-			}
 		},
 		//立即购买
 		buy(){

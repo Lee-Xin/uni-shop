@@ -1,4 +1,4 @@
-let {getToken} = require('@/common/lib/commonFunc.js')
+let {getToken, handleRes} = require('@/common/lib/commonFunc.js')
 
 export default {
 	get(url, data){
@@ -11,7 +11,8 @@ export default {
 					'Authorization': 'Bearer ' + getToken()
 				},
 				success: res => {
-					resolve(res.data)
+					// 这里转发res.data，因为get请求获取的数据格式和post不一样
+					resolve(handleRes(res.data))
 				},
 				fail: res => {
 					if(res.errMsg){
@@ -37,8 +38,10 @@ export default {
 				header: {
 					'Authorization': 'Bearer ' + getToken()
 				},
-				success: res => {
-					resolve(res.data)
+				success: (res) => {
+					// 返回handleRes处理后的promise对象
+					// handleRes处理逻辑： 成功：转发res，失败：返回失败处理函数
+					resolve(handleRes(res))
 				},
 				fail: res => {
 					if(res.errMsg){
@@ -66,7 +69,7 @@ export default {
 					'Authorization': 'Bearer ' + getToken()
 				},
 				success: res => {
-					resolve(res.data)
+					resolve(handleRes(res))
 				},
 				fail: res => {
 					if(res.errMsg){
