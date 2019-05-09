@@ -59,21 +59,7 @@
 			<view class="title">
 				猜你喜欢
 			</view>
-			<view class="product-list">
-				<view
-					class="product"
-					v-for="product in productList"
-					:key="product.pid"
-					@tap="toGoods(product)"
-				>
-					<image mode="widthFix" :src="'http://localhost:3000'+product.img"></image>
-					<view class="name">{{ product.name }}</view>
-					<view class="info">
-						<view class="price">{{ product.price }}</view>
-						<active-flag :activeId="product.active_id"></active-flag>
-					</view>
-				</view>
-			</view>
+			<goods-list :goodsList="productList"></goods-list>
 			<view class="loading-text">{{ loadingText }}</view>
 		</view>
 	</view>
@@ -84,8 +70,9 @@ import SearchTip from '@/components/search-tip.vue'
 import SwiperImages from '@/components/swiper-images.vue'
 import ActiveFlag from '@/components/active-flag.vue'
 import httpApi from '@/common/httpApi.js'
+import GoodsList from '@/components/goods-list.vue'
 export default {
-	components: {SearchTip, SwiperImages, ActiveFlag},
+	components: {SearchTip, SwiperImages, ActiveFlag, GoodsList},
 	data() {
 		return {
 			afterHeaderOpacity: 1,//不透明度
@@ -289,13 +276,6 @@ export default {
 		//推荐商品跳转
 		toPromotion(e) {
 			uni.showToast({ title: e.title, icon: 'none' });
-		},
-		//商品跳转
-		toGoods(product) {
-			uni.showToast({ title: '商品' + product.pid, icon: 'none' });
-			uni.navigateTo({
-				url: '../goods/goods?pid='+product.pid
-			});
 		}
 	}
 };
@@ -557,47 +537,6 @@ page{position: relative;}
 		height: 60upx;
 		color: #979797;
 		font-size: 24upx;
-	}
-	.product-list {
-		width: 92%;
-		padding: 0 4% 3vw 4%;
-		display: flex;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		.product {
-			width: 48%;
-			border-radius: 20upx;
-			background-color: #fff;
-			margin: 0 0 15upx 0;
-			box-shadow: 0upx 5upx 25upx rgba(0, 0, 0, 0.1);
-			image {
-				width: 100%;
-				border-radius: 20upx 20upx 0 0;
-			}
-			.name {
-				width: 92%;
-				padding: 10upx 4%;
-				display: -webkit-box;
-				-webkit-box-orient: vertical;
-				-webkit-line-clamp: 2;
-				text-align: justify;
-				overflow: hidden;
-				font-size: 30upx;
-			}
-			.info {
-				display: flex;
-				justify-content: space-between;
-				align-items: flex-end;
-				width: 92%;
-				padding: 10upx 4% 10upx 4%;
-
-				.price {
-					color: #e65339;
-					font-size: 30upx;
-					font-weight: 600;
-				}
-			}
-		}
 	}
 }
 </style>

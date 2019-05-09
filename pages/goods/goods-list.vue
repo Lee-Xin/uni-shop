@@ -9,26 +9,16 @@
 		<!-- 占位 -->
 		<view class="place"></view>
 		<!-- 商品列表 -->
-		<view class="goods-list">
-			<view class="product-list">
-				<view class="product" v-for="goods in goodsList" :key="goods.pid" @tap="toGoods(goods)">
-					<image mode="widthFix" :src="domain.assetsHost+goods.img"></image>
-					<view class="name">{{goods.name}}</view>
-					<view class="info">
-						<view class="price">{{goods.price}}</view>
-						<view class="slogan">{{goods.slogan}}</view>
-					</view>
-				</view>
-			</view>
-			<view class="loading-text">{{loadingText}}</view>
-		</view>
+		<goods-list :goodsList="goodsList"></goods-list>
 	</view>
 </template>
 
 <script>
 	import httpApi from '@/common/httpApi.js'
 	import config from '@/common/config.js'
+	import GoodsList from '@/components/goods-list.vue'
 	export default {
+		components:{GoodsList},
 		data() {
 			return {
 				goodsList:[],
@@ -138,111 +128,61 @@
 </script>
 
 <style lang="scss">
-	@font-face {font-family:"HMfont-home";src:url('data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAAMMAAsAAAAAB3gAAALAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCCfgqCXII4ATYCJAMMCwgABCAFhG0HQxuDBsiemjxBRCmUAtQ2VRCBG4ig2u+zZ3c/ortTgBIoQOVPBYSJYkUggWRSPqyjY2yEQyPe5FzmkfXucrOArBAKSdt/TjNmNTZyfrOTKAwgNQXmqbkEBgj2eS6nNz3A+YFyXHs9P2raURxQgHtR7yiyEknMW4bXLsaDeEygbVEkxYXiyhqgV+BVgbgmCQzQ55xKS2doCvWag0W8o9FMz9M24G34/fgvPvQktQxvPL5axIPc38m/U/JI9VSLIKjm80M7RsYWoBAXa4PHVHFxi0rbKaotAfuaFfxOqSp+Jwvlbv/wCImow+1dsAaGdEcqZnRrKhAggQzqaOI24Bmw02JRZmZ88bS/fq2vH6Y1yywb576F7tn3l1/5e7zm6Ze2+cW37DBXjFEftC+6U7vil0/zOvXIl3lf7cx/3DkeysBDV/tDQ5N7tli9AzsiHDgcO55136FS8LLTzBygm4Q9u6bCp1zAy0lh7v/L+PnQ0P71YAZeG0pE3eWwRIIOANX5dz4JQCX8hQLB+5z/hXZb5ofeVMCvjc0fKFEp+rs1bzkU/H5Vz67iarArF1vJlH4oO8g0SGi7EVU4OnY43jzr3U5omqVIGhaQNS2Rhd1CTcc26ppOo21TyfGOCUIlSgsbJhHC0DqSvp/IhnbIwh6gZu4BdcNQoe1iuC7sWAnJWEAQQxEP2V4ocQE/ph5qjDqrkNDpZUhWE4rrEJGlDIyLji1WSpAfkTm2yF1CPKUYYhLwwWL0HPJ6AzBIAm7E0WiR0mB6TAyue1M0F/ABo/MIhEEhPIjVC5JwAvywGE8ZS5+vggg6eTFIC6ejWAchZNL0UJxosT3IEqO/F+dehMi6COJRFAZhRIAPVIz8iJcUA6Bg/Tw3hENFE0fkg9LFSP1wX2P0+mbf952ANvxUjhQ5is4tRurpjHJLjF9IRbKIHAAA') format('woff2');}
-	.icon {
-		font-family:"HMfont-home" !important;
-		font-size:26upx;
-		font-style:normal;
-		&.sheng {
-			&:before{content:"\e737";}
-		}
-		&.jiang {
-			&:before{content:"\e736";}
-		}
-		
+@font-face {font-family:"HMfont-home";src:url('data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAAMMAAsAAAAAB3gAAALAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCCfgqCXII4ATYCJAMMCwgABCAFhG0HQxuDBsiemjxBRCmUAtQ2VRCBG4ig2u+zZ3c/ortTgBIoQOVPBYSJYkUggWRSPqyjY2yEQyPe5FzmkfXucrOArBAKSdt/TjNmNTZyfrOTKAwgNQXmqbkEBgj2eS6nNz3A+YFyXHs9P2raURxQgHtR7yiyEknMW4bXLsaDeEygbVEkxYXiyhqgV+BVgbgmCQzQ55xKS2doCvWag0W8o9FMz9M24G34/fgvPvQktQxvPL5axIPc38m/U/JI9VSLIKjm80M7RsYWoBAXa4PHVHFxi0rbKaotAfuaFfxOqSp+Jwvlbv/wCImow+1dsAaGdEcqZnRrKhAggQzqaOI24Bmw02JRZmZ88bS/fq2vH6Y1yywb576F7tn3l1/5e7zm6Ze2+cW37DBXjFEftC+6U7vil0/zOvXIl3lf7cx/3DkeysBDV/tDQ5N7tli9AzsiHDgcO55136FS8LLTzBygm4Q9u6bCp1zAy0lh7v/L+PnQ0P71YAZeG0pE3eWwRIIOANX5dz4JQCX8hQLB+5z/hXZb5ofeVMCvjc0fKFEp+rs1bzkU/H5Vz67iarArF1vJlH4oO8g0SGi7EVU4OnY43jzr3U5omqVIGhaQNS2Rhd1CTcc26ppOo21TyfGOCUIlSgsbJhHC0DqSvp/IhnbIwh6gZu4BdcNQoe1iuC7sWAnJWEAQQxEP2V4ocQE/ph5qjDqrkNDpZUhWE4rrEJGlDIyLji1WSpAfkTm2yF1CPKUYYhLwwWL0HPJ6AzBIAm7E0WiR0mB6TAyue1M0F/ABo/MIhEEhPIjVC5JwAvywGE8ZS5+vggg6eTFIC6ejWAchZNL0UJxosT3IEqO/F+dehMi6COJRFAZhRIAPVIz8iJcUA6Bg/Tw3hENFE0fkg9LFSP1wX2P0+mbf952ANvxUjhQ5is4tRurpjHJLjF9IRbKIHAAA') format('woff2');}
+.icon {
+	font-family:"HMfont-home" !important;
+	font-size:26upx;
+	font-style:normal;
+	&.sheng {
+		&:before{content:"\e737";}
 	}
-	.header{
-		width: 92%;
-		padding: 0 4%;
-		height: 79upx;
+	&.jiang {
+		&:before{content:"\e736";}
+	}
+	
+}
+.header{
+	width: 92%;
+	padding: 0 4%;
+	height: 79upx;
+	display: flex;
+	justify-content: space-around;
+	align-items: flex-end;
+	position: fixed;
+	top: 0;
+	z-index: 10;
+	background-color: #fff;
+	border-bottom: solid 1upx #eee;
+	.target{
+		width: 20%;
+		height: 60upx;
 		display: flex;
-		justify-content: space-around;
-		align-items: flex-end;
-		position: fixed;
-		top: 0;
-		z-index: 10;
-		background-color: #fff;
-		border-bottom: solid 1upx #eee;
-		.target{
-			width: 20%;
-			height: 60upx;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			font-size: 28upx;
-			margin-bottom: -2upx;
-			color: #aaa;
-			&.on{
-				color: #555;
-				border-bottom: 4upx solid #f06c7a;
-				font-weight: 600;
-				font-size: 30upx;
-			}
-			
-			
+		justify-content: center;
+		align-items: center;
+		font-size: 28upx;
+		margin-bottom: -2upx;
+		color: #aaa;
+		&.on{
+			color: #555;
+			border-bottom: 4upx solid #f06c7a;
+			font-weight: 600;
+			font-size: 30upx;
 		}
 	}
+}
 .place{
-		
-		background-color: #ffffff;
-		height: 100upx;
-
-	}
+	background-color: #ffffff;
+	height: 100upx;
+}
 .goods-list{
-		.loading-text{
-			width: 100%;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			height: 60upx;
-			color: #979797;
-			font-size: 24upx;
-		}
-		.product-list{
-			width: 92%;
-			padding: 0 4% 3vw 4%; 
-			display: flex;
-			justify-content: space-between;
-			flex-wrap: wrap;
-			.product{
-				width: 48%;
-				border-radius: 20upx;
-				background-color: #fff;
-				margin: 0 0 15upx 0;
-				box-shadow: 0upx 5upx 25upx rgba(0,0,0,0.1);
-				image{
-					width: 100%;
-					border-radius: 20upx 20upx 0 0;
-				}
-				.name{
-					width: 92%;
-					padding: 10upx 4%;
-					display: -webkit-box;
-					-webkit-box-orient: vertical;
-					-webkit-line-clamp: 2;
-					text-align: justify;
-					overflow: hidden;
-					font-size: 30upx;
-				}
-				.info{
-					display: flex;
-					justify-content: space-between;
-					align-items: flex-end;
-					width: 92%;
-					padding: 10upx 4% 10upx 4%;
-					
-					.price{
-						color: #e65339;
-						font-size: 30upx;
-						font-weight: 600;
-					}
-					.slogan{
-						color: #807c87;
-						font-size: 24upx;
-					}
-				}
-			}
-			
-		}
+	.loading-text{
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 60upx;
+		color: #979797;
+		font-size: 24upx;
 	}
+}
 </style>

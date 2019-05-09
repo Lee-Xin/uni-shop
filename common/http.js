@@ -11,8 +11,7 @@ export default {
 					'Authorization': 'Bearer ' + getToken()
 				},
 				success: res => {
-					// 这里转发res.data，因为get请求获取的数据格式和post不一样
-					resolve(handleRes(res.data))
+					resolve(handleRes(res))
 				},
 				fail: res => {
 					if(res.errMsg){

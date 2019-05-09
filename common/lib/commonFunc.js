@@ -41,7 +41,7 @@ exports.handleRes = (res) => {
 			})
 		} else {
 			// resolve结果（相当于转发了一下）
-			resolve(res)
+			resolve(res.data)
 		}
 	})
 }

@@ -1,27 +1,20 @@
 <template>
 	<view>
 		<view class="header" :style="{position:headerPosition,top:headerTop}"></view> 
-		<view>
-			<view v-for="(cate, index) in cates" :key="index">
-				{{cate[0].cate_name}}
-				<view v-for="(prod, p_index) in cate" :key="p_index">
-					{{prod}}
-				</view>
+		<view class="cate-area">
+			<view class="each-area" v-for="(cate, index) in tabList" :key="index">
+				<view class="cate-name">{{cate.name}}</view>
+				<goods-list :goodsList="tabGoodsList[index]"></goods-list>
 			</view>
-			<wuc-tab :tab-list="tabList2" :tabCur="TabCur2" @change="tabChange2" tab-class="text-center text-black bg-white" select-class="text-blue text-xl"></wuc-tab>
-			<swiper :current="TabCur2" class="swiper" duration="300" :circular="true" indicator-color="rgba(255,255,255,0)" indicator-active-color="rgba(255,255,255,0)" @change="swiperChange2">
-			  <swiper-item v-for="(item,index) in tabList2" :key="index">
-			    <div class="bg-white padding margin text-center text-black">{{item.name}}</div>
-			  </swiper-item>
-			</swiper>
 		</view>
 	</view>
 </template>
 
 <script>
 	import WucTab from '@/components/wuc-tab'
+	import GoodsList from '@/components/goods-list'
 	export default {
-		components: { WucTab },
+		components: { WucTab, GoodsList},
 		data() {
 			return {
 				headerPosition: 'fixed',
@@ -31,8 +24,9 @@
 				headerBackground: 'unset',
 				pageName: '',
 				cates: [],
-				tabList2: [{ name: '精选' }, { name: '订阅' }],
-				TabCur2: 0,
+				tabList: [],
+				tabGoodsList: [],
+				TabCur: 0,
 			};
 		},
 		onPageScroll(e){
@@ -62,7 +56,8 @@
 						this.cates = res.data.data
 						let cates = res.data.data
 						Object.keys(cates).forEach(cate => {
-							this.tabList2.push({name: cates[cate[0]][0].cate_name})
+							this.tabList.push({name: cates[cate[0]][0].cate_name})
+							this.tabGoodsList.push(cates[cate[0]])
 						})
 					},
 					fail: () => {},
@@ -71,10 +66,10 @@
 			},
 			swiperChange2(e) {
 			    let { current } = e.target;
-			    this.TabCur2 = current;
+			    this.TabCur = current;
 			},
 			tabChange2(index) {
-			    this.TabCur2 = index;
+			    this.TabCur = index;
 			}
 		}
 	}
@@ -106,5 +101,13 @@
 		z-index: 10;
 		background-color: #fff;
 		border-bottom: solid 1upx #eee;
+	}
+	.cate-area{
+		background-color: #eee;
+		.each-area{
+			.cate-name{
+				text-align: center;
+			}
+		}
 	}
 </style>
