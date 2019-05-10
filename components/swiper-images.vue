@@ -2,7 +2,7 @@
 	<view class="swiper-box">
 		<swiper circular="true" autoplay="true" @change="swiperChange">
 			<swiper-item v-for="swiper in swiperList" :key="swiper.id">
-				<img :src="swiper.imgpath" @tap="$emit('clickFn',swiper)"/>
+				<img :src="assetsHost+swiper.imgpath" @tap="$emit('clickFn',swiper)"/>
 			</swiper-item>
 		</swiper>
 		<view class="indicator">
@@ -17,6 +17,7 @@
 </template>
 
 <script>
+	import config from '@/common/config.js'
 	export default {
 		props: {
 			swiperList: {
@@ -26,6 +27,7 @@
 		data() {
 			return {
 				currentSwiper: 0,
+				assetsHost: config.domain.assetsHost
 			};
 		},
 		methods: {

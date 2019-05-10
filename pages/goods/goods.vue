@@ -111,7 +111,7 @@
 		<view class="swiper-box">
 			<swiper circular="true" autoplay="true" @change="swiperChange">
 				<swiper-item v-for="(swiper, index) in goodsData.images" :key="index">
-					<image :src="'http://localhost:3000'+swiper" @tap="toSwiper(swiper)"></image>
+					<image :src="assetsHost+swiper" @tap="toSwiper(swiper)"></image>
 				</swiper-item>
 			</swiper>
 			<view class="indicator">{{currentSwiper+1}}/{{goodsData.images.length}}</view>
@@ -157,6 +157,7 @@
 
 <script>
 import httpApi from '@/common/httpApi.js'
+import config from '@/common/config.js'
 export default {
 	data() {
 		return {
@@ -199,6 +200,7 @@ export default {
 				}
 				
 			},
+			assetsHost: config.domain.assetsHost,
 			spuId: '',
 			selectSpec:null,//选中规格
 			isKeep:false,//收藏

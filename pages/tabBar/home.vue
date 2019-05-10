@@ -20,7 +20,7 @@
 				:key="index"
 				@tap="toCategory(row)"
 			>
-				<view class="img"><image :src="'http://localhost:3000'+row.img"></image></view>
+				<view class="img"><image :src="assetsDomain+row.img"></image></view>
 				<view class="text">{{ row.name }}</view>
 			</view>
 		</view>
@@ -71,6 +71,7 @@ import SwiperImages from '@/components/swiper-images.vue'
 import ActiveFlag from '@/components/active-flag.vue'
 import httpApi from '@/common/httpApi.js'
 import GoodsList from '@/components/goods-list.vue'
+import config from '@/common/config.js'
 export default {
 	components: {SearchTip, SwiperImages, ActiveFlag, GoodsList},
 	data() {
@@ -94,7 +95,8 @@ export default {
 			//猜你喜欢列表
 			productList: [],
 			stopLoadProd: false,
-			loadingText: '正在加载...'
+			loadingText: '正在加载...',
+			assetsDomain: config.domain.assetsHost
 		};
 	},
 	onPageScroll(e) {

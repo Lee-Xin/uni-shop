@@ -7,12 +7,6 @@
 		<view class="history">
 			<search-content class="each-search" @clickFn="fastDoSearch(content)" v-for="(content, index) in historyList" :key="`history${index}`" :content="content"></search-content>
 		</view>
-		<view>
-			<a href="http://192.168.169.108/signInfo/viewDetail?ts=1555641631703&sign=kBmoCTbBKPfUq29yCkqqTI9ATvdLsnrA9rP1hyJ0kPk&signNo=SSN1115076319647371264&tokenKey=st&token=x-gJ7YHbBzhzTiagXL_OWo1nojP_JJLm0br36HdXKDUHu3Doc_ADSFdu-0oMHwEK-BhhFkyTeAEua2lvbn5sRQ">跳转</a>
-		</view>
-		<view style="height: 200vh">
-			121
-		</view>
 	</view>
 </template>
 
