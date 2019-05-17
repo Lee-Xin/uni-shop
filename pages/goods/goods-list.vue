@@ -33,17 +33,27 @@
 				orderby:"sheng",
 				queryProdParam: {
 					page: 1,
-					pageSize: 4
+					pageSize: 10
 				},
 				domain: config.domain
 			};
 		},
 		onLoad (option) { //option为object类型，会序列化上个页面传递的参数
-			console.log(option.cid); //打印出上个页面传递的参数。
 			uni.setNavigationBarTitle({
-				title: option.name
+				title: option.name || option.keywords || ''
+				
 			});
-			this.loadProds({category_id: option.cid})
+			let setOption = {
+				category_id: option.cid,
+				keywords: option.keywords
+			}
+			for(let key in setOption){
+				if(!setOption[key]){
+					delete setOption[key]
+				}
+			}
+			Object.assign(this.queryProdParam, setOption)
+			this.loadProds()
 			//兼容H5下排序栏位置
 			// #ifdef H5
 				if(document.getElementsByTagName('uni-page-head')[0]){
@@ -70,22 +80,16 @@
 		},
 		//上拉加载，需要自己在page.json文件中配置"onReachBottomDistance"
 		onReachBottom(){
-			uni.showToast({title: '触发上拉加载'});
-			let len = this.goodsList.length;
-			if(len>=40){
-				this.loadingText="到底了";
-				return false;
-			}else{
-				this.loadingText="正在加载...";
+			if(!this.stopLoadProd){
+				this.loadProds()
 			}
 		},
 		methods:{
 			reload(){
 				this.goodsList = [];
-				
 			},
-			loadProds(param){
-				httpApi.loadProd(param).then(res => {
+			async loadProds(){
+				httpApi.loadProd(this.queryProdParam).then(res => {
 					this.goodsList = this.goodsList.concat(res.data)
 					if(res.data.length < this.queryProdParam.pageSize){
 						this.loadingText = '到底了';
@@ -95,6 +99,28 @@
 				}).catch(e => {
 					console.log(e);
 				})
+				if(this.queryProdParam.keywords){
+					uni.getStorage({
+						key: 'search_keywords',
+						success: (res) => {
+							let storage = JSON.parse(res.data)
+							if(storage.indexOf(this.queryProdParam.keywords) === -1){
+								storage.push(this.queryProdParam.keywords)
+								uni.setStorage({
+									key: 'search_keywords',
+									data: JSON.stringify(storage)
+								})
+							}
+						},
+						fail: (e) => {
+							let storage = [this.queryProdParam.keywords]
+							uni.setStorage({
+								key: 'search_keywords',
+								data: JSON.stringify(storage)
+							})
+						}
+					})
+				}
 			},
 			//商品跳转
 			toGoods(e){

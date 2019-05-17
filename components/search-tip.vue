@@ -20,11 +20,6 @@
 				searchTip: '搜索喜欢的物品',
 			};
 		},
-		mounted(){
-			setTimeout(() => {
-				this.searchTip = '集成灶'
-			}, 500)
-		},
 		methods: {
 			toSearch(){
 				uni.navigateTo({

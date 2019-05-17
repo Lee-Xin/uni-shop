@@ -1,11 +1,21 @@
 <template>
 	<view>
 		<view class="search-input">
-			<input v-model="searchContent" focus ref="searchInput" @confirm="doSearch" :placeholder="searchTip" type="text" confirm-type="search">
+			<input v-model="searchContent" focus ref="searchInput" :placeholder="searchTip" type="text" confirm-type="search">
 			<button class="search-btn" type="warn" size="mini" @tap="doSearch">搜索</button>
 		</view>
 		<view class="history">
-			<search-content class="each-search" @clickFn="fastDoSearch(content)" v-for="(content, index) in historyList" :key="`history${index}`" :content="content"></search-content>
+			<view class="title">
+				最近搜索
+				<span @tap="clearHistory" class="clear">清空</span>
+			</view>
+			<search-content class="each-search" @clickFn="fastDoSearch(content)" v-for="(content, index) in historyList" :key="index" :content="content"></search-content>
+		</view>
+		<view class="recommand">
+			<view class="title">
+				热门搜索
+			</view>
+			<search-content class="each-search" @clickFn="fastDoSearch(content)" v-for="(content, index) in recommandList" :key="index" :content="content"></search-content>
 		</view>
 	</view>
 </template>
@@ -13,13 +23,15 @@
 <script>
 	import SearchContent from '@/components/search-content.vue'
 	import http from '@/common/http.js'
+	import httpApi from '@/common/httpApi.js'
 	export default {
 		components:{SearchContent},
 		data() {
 			return {
-				searchTip: '集成灶',
+				searchTip: '搜索喜欢的物品',
 				searchContent: '',
-				historyList: ['油烟机','燃气灶']
+				historyList: [],
+				recommandList: ['油烟机', '集成灶', '燃气灶', '热水器', '花洒' , '浴室柜', '龙头', '马桶', '水箱', '淘菜盆']
 			};
 		},
 		onPullDownRefresh() {
@@ -27,26 +39,43 @@
 				uni.stopPullDownRefresh();
 			}, 200);
 		},
-		onLoad(){
-			http();
+		onShow(){
+			uni.getStorage({
+				key: 'search_keywords',
+				success: (res) => {
+					this.historyList = JSON.parse(res.data)
+				}
+			})
 		},
 		methods: {
-			doSearch(){
-				uni.request({
-					url: 'http://localhost:3000/test',
-					method: 'GET'
-				}).then(data => {
-					let [error, res] = data
-					console.log(res)
-				})
-				// 调用搜索接口
-				console.log(this.searchContent);
+			async doSearch(){
+				/* // 调用搜索接口
+				let res = await httpApi.search({keywords: this.searchContent}) */
+				uni.navigateTo({
+					url: '/pages/goods/goods-list?keywords=' + this.searchContent
+				});
 			},
 			fastDoSearch(content){
-				console.log(content);
+				uni.navigateTo({
+					url: '/pages/goods/goods-list?keywords=' + content
+				});
 			},
-			test(){
-				console.log(this.$refs.searchInput.$refs)
+			clearHistory(){
+				uni.showModal({
+					title: '系统提示',
+					content: '确定要清空吗？',
+					showCancel: true,
+					cancelText: '取消',
+					confirmText: '确定',
+					success: res => {
+						if(res.confirm){
+							uni.clearStorage();
+							this.historyList = []
+						}
+					},
+					fail: () => {},
+					complete: () => {}
+				});
 			}
 		}
 	}
@@ -83,7 +112,19 @@
 			}
 		}
 	}
-	.history{
+	.history,.recommand{
 		padding: 20upx;
+		.title{
+			font-size: 30upx;
+			margin: 14upx 0;
+			.clear{
+				font-size: 24upx;
+				float: right;
+			}
+		}
+		.each-search{
+			font-size: 24upx;
+			margin-bottom: 10upx;
+		}
 	}
 </style>

@@ -90,7 +90,7 @@ export default {
 			Promotion: [],
 			queryProdParam: {
 				page: 1,
-				pageSize: 4
+				pageSize: 10
 			},
 			//猜你喜欢列表
 			productList: [],
