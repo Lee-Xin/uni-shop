@@ -212,7 +212,7 @@
 	}
 	.logo{
 		.img{
-			uni-image{
+			image{
 				height: 100%
 			}
 		}

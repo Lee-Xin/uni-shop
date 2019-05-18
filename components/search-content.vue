@@ -19,6 +19,7 @@
 	display: inline-block;
 	padding: 8upx 20upx;
 	margin-right: 20upx;
+	margin-bottom: 20upx;
 	background-color: #f3f3f3;
 	color: #2d2d2d;
 	font-size: 28upx;
