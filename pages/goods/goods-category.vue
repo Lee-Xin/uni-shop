@@ -1,6 +1,5 @@
 <template>
 	<view>
-		<swiper-card></swiper-card>
 		<view class="cate-area">
 			<view class="each-area" v-for="(cate, index) in tabList" :key="index">
 				<view class="cate-name">{{cate.name}}</view>
@@ -13,9 +12,8 @@
 <script>
 	import WucTab from '@/components/wuc-tab'
 	import GoodsList from '@/components/goods-list'
-	import SwiperCard from '@/components/swiper-card'
 	export default {
-		components: { WucTab, GoodsList, SwiperCard},
+		components: { WucTab, GoodsList},
 		data() {
 			return {
 				cates: [],
