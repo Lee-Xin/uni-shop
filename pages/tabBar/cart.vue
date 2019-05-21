@@ -25,11 +25,10 @@
 					<!-- 商品信息 -->
 					<view class="goods-info" @tap="toGoods(row)">
 						<view class="img">
-							<image :src="row.img"></image>
+							<image :src="assetsHost+row.img"></image>
 						</view>
 						<view class="info">
-							<view class="title">{{row.name}}</view>
-							<view class="spec">{{row.spec}}</view>
+							<view class="title">{{row.detail}}</view>
 							<view class="price-number">
 								<view class="price">￥{{row.price}}</view>
 								<view class="number">
@@ -68,6 +67,7 @@
 
 <script>
 	import httpApi from '@/common/httpApi.js'
+	import config from '@/common/config.js'
 	export default {
 		data() {
 			return {
@@ -77,17 +77,12 @@
 				statusTop:null,
 				selectedList:[],
 				isAllselected:false,
-				goodsList:[
-					{id:1,img:'../../static/img/goods/p1.jpg',name:'商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题',spec:'规格:S码',price:127.5,number:1,selected:false},
-					{id:2,img:'../../static/img/goods/p2.jpg',name:'商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题',spec:'规格:S码',price:127.5,number:1,selected:false},
-					{id:3,img:'../../static/img/goods/p3.jpg',name:'商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题',spec:'规格:S码',price:127.5,number:1,selected:false},
-					{id:4,img:'../../static/img/goods/p4.jpg',name:'商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题',spec:'规格:S码',price:127.5,number:1,selected:false},
-					{id:5,img:'../../static/img/goods/p5.jpg',name:'商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题',spec:'规格:S码',price:127.5,number:1,selected:false}
-				],
+				goodsList:[],
 				//控制滑动效果
 				theIndex:null,
 				oldIndex:null,
-				isStop:false
+				isStop:false,
+				assetsHost: config.domain.assetsHost
 			}
 		},
 		onPageScroll(e){
@@ -115,7 +110,7 @@
 		methods: {
 			async loadAllProds(){
 				let res = await httpApi.loadCart()
-				console.log(res);
+				this.goodsList = res.data
 			},
 			//控制左滑删除效果-begin
 			touchStart(index,event){
@@ -170,9 +165,8 @@
 			
 			//商品跳转
 			toGoods(e){
-				uni.showToast({title: '商品'+e.id,icon:"none"});
 				uni.navigateTo({
-					url: '../goods/goods' 
+					url: '/pages/goods/goods?pid=' + e.pid 
 				});
 			},
 			//跳转确认订单页面
@@ -477,6 +471,7 @@
 							font-size: 28upx;
 							height: 60upx;
 							.price{
+								color: #f47925;
 							}
 							.number{
 								display: flex;
