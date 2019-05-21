@@ -59,5 +59,8 @@ export default {
 				e.callback()
 			}
 		})
+	},
+	getFavorities(){
+		return http.get(domain.requestHost + '/getFavorities')
 	}
 }
