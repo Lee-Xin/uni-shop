@@ -97,6 +97,9 @@
 		        uni.stopPullDownRefresh();
 		    }, 1000);
 		},
+		onShow(){
+			this.loadAllProds()
+		},
 		onLoad() {
 			//兼容H5下结算条位置
 			// #ifdef H5
@@ -105,7 +108,6 @@
 			// #ifdef APP-PLUS
 			this.statusHeight = plus.navigator.getStatusbarHeight();
 			// #endif
-			this.loadAllProds()
 		},
 		methods: {
 			async loadAllProds(){

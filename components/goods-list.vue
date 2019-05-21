@@ -4,7 +4,7 @@
 			<image mode="widthFix" :src="assetsHost+''+item.img"></image>
 			<view class="name">{{ item.name }}</view>
 			<view class="info">
-				<view class="price">{{ item.price }}</view>
+				<view class="price">{{ item.price}}</view>
 				<active-flag :activeId="item.active_id"></active-flag>
 			</view>
 		</view>

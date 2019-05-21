@@ -62,5 +62,8 @@ export default {
 	},
 	getFavorities(){
 		return http.get(domain.requestHost + '/getFavorities')
+	},
+	getSimilarity(param){
+		return http.get(domain.requestHost + '/getSimilarity', param)
 	}
 }
