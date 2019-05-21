@@ -137,7 +137,7 @@
 						uni.hideLoading()
 						uni.setStorageSync('token', res.data);
 						this.$store.dispatch('setUserToken', res.data);
-						let pages = getCurrentPages();
+						httpApi.profile()
 						uni.switchTab({
 							url: '/pages/tabBar/home'
 						})

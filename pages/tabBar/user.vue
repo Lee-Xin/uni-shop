@@ -2,10 +2,6 @@
 	<view>
 		<view class="status" :style="{position:headerPosition,top:statusTop}"></view>
 		<view class="header" :style="{position:headerPosition,top:headerTop}">
-			<view class="addr"></view>
-			<view class="input-box">
-				
-			</view>
 			<view class="icon-btn">
 				<view class="icon tongzhi" @tap="toMsg"></view>
 				<view class="icon setting" @tap="toSetting"></view>
@@ -17,29 +13,24 @@
 		<view class="user">
 			<!-- 头像 -->
 			<view class="left">
-				<image :src="user.face" @tap="toSetting"></image>
+				<image :src="assetsHost + user.avatar" @tap="toSetting"></image>
 			</view>
 			<!-- 昵称,个性签名 -->
 			<view class="right">
-				<view class="username" @tap="toLogin">{{user.username}}</view>
+				<view class="username" @tap="toSetting">{{user.username}}</view>
 				<view class="signature" @tap="toSetting">{{user.signature}}</view>
-			</view>
-			<!-- 二维码按钮 -->
-			<view class="erweima" @tap="toMyQR">
-				<view class="icon qr"></view>
 			</view>
 		</view>
 		<!-- VIP banner -->
-		<view class="VIP">
+		<!-- <view class="VIP">
 			<view class="img">
 				<image src="../../static/img/VIP.png"></image>
 			</view>
-			<view class="title">开通VIP会员</view>
-			<view class="tis">会员特权</view>
-		</view>
+			<view class="title">新人红包</view>
+			<view class="tis">点击领取</view>
+		</view> -->
 		<!-- 订单-余额 -->
-		<view class="order">
-			<!-- 订单类型 -->
+		<!-- <view class="order">
 			<view class="list">
 				<view class="box" v-for="(row,index) in orderList" :key="index" @tap="toOrderList(index)">
 					<view class="img">
@@ -48,7 +39,6 @@
 					<view class="text">{{row.text}}</view>
 				</view>
 			</view>
-			<!-- 余额 -->
 			<view class="balance-info">
 				<view class="left">
 					<view class="box">
@@ -73,12 +63,12 @@
 					</view>
 				</view>
 			</view>
-		</view>
+		</view> -->
 		<!-- 工具栏 -->
 		<view class="toolbar">
-			<view class="title">我的工具栏</view>
+			<view class="title">工具栏</view>
 			<view class="list">
-				<view class="box" v-for="(row,index) in mytoolbarList" :key="index">
+				<view class="box" @tap="tapTool(row)" v-for="(row,index) in mytoolbarList" :key="index">
 					<view class="img">
 						<image :src="row.img"></image>
 					</view>
@@ -91,7 +81,9 @@
 	</view>
 </template>
 <script>
-
+	import httpApi from '@/common/httpApi.js'
+	import config from '@/common/config.js'
+	let assetsHost = config.domain.assetsHost
 	export default {
 		data() {
 			return {
@@ -99,15 +91,7 @@
 				headerPosition:"fixed",
 				headerTop:null,
 				statusTop:null,
-				//个人信息,
-				user:{
-					username:'游客1002',
-					face:'../../static/img/face.jpg',
-					signature:'点击昵称跳转登录/注册页',
-					integral:0,
-					balance:0,
-					envelope:0
-				},
+				assetsHost: assetsHost,
 				// 订单类型
 				orderList:[
 					{text:'待付款',icon:"fukuan"},
@@ -118,7 +102,10 @@
 				],
 				// 工具栏列表
 				mytoolbarList:[
-					{text:'我的收藏',img:'../../static/img/user/point.png'},
+					{text:'我的收藏',img:'../../static/img/user/point.png', link: {
+						type: 'navigator',
+						url: '/pages/goods/goods-favorite'
+					}},
 					{text:'优惠券',img:'../../static/img/user/quan.png'},
 					{text:'新客豪礼',img:'../../static/img/user/renw.png'},
 					{text:'领红包',img:'../../static/img/user/momey.png'},
@@ -131,6 +118,11 @@
 					// {text:'签到',img:'../../static/img/user/mingxi.png'}
 					
 				]
+			}
+		},
+		computed: {
+			user(){
+				return this.$store.getters.userInfo || {}
 			}
 		},
 		//下拉刷新，需要自己在page.json文件中配置开启页面下拉刷新 "enablePullDownRefresh": true
@@ -151,33 +143,10 @@
 			this.statusHeight = plus.navigator.getStatusbarHeight();
 			// #endif
 		},
-		onReady(){
-			//此处，演示,每次页面初次渲染都把登录状态重置
-			uni.setStorage({
-				key: 'UserInfo',
-				data: false,
-				success: function () {
-				},
-				fail:function(e){
-				}
-			});
-		},
 		onShow(){
-			uni.getStorage({
-				key: 'UserInfo',
-				success: (res)=>{
-					if(!res.data){
-						if(this.isfirst){
-							//this.toLogin();
-						}
-						return ;
-					}
-					this.user = res.data;
-				},
-				fail:(e)=>{
-					//this.toLogin(); 
-				}
-			});
+			if(!this.$store.getters.userInfo){
+				httpApi.profile()
+			}
 		},
 		methods: {
 			//消息列表
@@ -213,6 +182,19 @@
 					return true;
 				}
 				return false
+			},
+			tapTool(tool){
+				if(tool.link){
+					switch (tool.link.type){
+						case 'navigator':
+							uni.navigateTo({
+								url: tool.link.url
+							});
+							break;
+						default:
+							break;
+					}
+				}
 			}
 		}
 	} 
@@ -474,7 +456,7 @@
 	}
 	.toolbar{
 		width: 92%;
-		margin: 0 4% 0 4%;
+		margin: 30upx 4% 30upx 4%;
 		padding: 0 0 20upx 0;
 		background-color: #fff;
 		box-shadow: 0upx 0upx 25upx rgba(0,0,0,0.1);

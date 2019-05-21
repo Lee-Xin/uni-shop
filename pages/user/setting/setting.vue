@@ -5,23 +5,19 @@
 				<view class="row">
 					<view class="title">头像</view>
 					<view class="right"><view class="tis">
-					<image src="/static/img/face.jpg" mode="widthFix"></image>
+					<image :src="assetsHost + user.avatar" mode="widthFix"></image>
 					</view><view class="icon jiantou"></view></view>
 				</view>
 				<view class="row">
 					<view class="title">昵称</view>
-					<view class="right"><view class="tis">大黑哥</view><view class="icon jiantou"></view></view>
+					<view class="right"><view class="tis">{{user.username}}</view><view class="icon jiantou"></view></view>
 				</view>
 				<view class="row">
 					<view class="title">个性签名</view>
-					<view class="right"><view class="tis">这人太懒了，什么都不写</view><view class="icon jiantou"></view></view>
+					<view class="right"><view class="tis">{{user.signature}}</view><view class="icon jiantou"></view></view>
 				</view>
 				<view class="row">
 					<view class="title">收货地址</view>
-					<view class="right"><view class="tis"></view><view class="icon jiantou"></view></view>
-				</view>
-				<view class="row">
-					<view class="title">账户安全</view>
 					<view class="right"><view class="tis"></view><view class="icon jiantou"></view></view>
 				</view>
 			</view>
@@ -45,10 +41,6 @@
 					<view class="right"><view class="tis">v1.0.0</view><view class="icon jiantou"></view></view>
 				</view>
 				<view class="row">
-					<view class="title">清除缓存</view>
-					<view class="right"><view class="tis"></view><view class="icon jiantou"></view></view>
-				</view>
-				<view class="row">
 					<view class="title">问题反馈</view>
 					<view class="right"><view class="tis"></view><view class="icon jiantou"></view></view>
 				</view>
@@ -57,21 +49,48 @@
 					<view class="right"><view class="tis"></view><view class="icon jiantou"></view></view>
 				</view>
 			</view>
+			<view @tap="logout" class="list logout">
+				退出登录
+			</view>
 		</view>
 	</view>
 </template>
 
 <script>
+	import httpApi from '@/common/httpApi.js'
+	import config from '@/common/config.js'
+	let assetsHost = config.domain.assetsHost
 	export default {
 		data() {
 			return {
-				
+				assetsHost: assetsHost
 			};
+		},
+		computed: {
+			user(){
+				return this.$store.getters.userInfo || {}
+			}
+		},
+		onShow(){
+			if(!this.$store.getters.userInfo){
+				httpApi.profile()
+			}
 		},
 		methods: {
 			showType(tbIndex){
 				this.tabbarIndex = tbIndex;
 				this.list = this.orderList[tbIndex];
+			},
+			logout(){
+				this.$store.dispatch('setUserToken', null)
+				uni.removeStorage({
+					key: 'token',
+					success: function (res) {
+						uni.navigateTo({
+							url: '/pages/login/login'
+						});
+					}
+				});
 			}
 		}
 	}
@@ -104,6 +123,13 @@ page{
 		padding-left: 4%;
 		background-color: #fff;
 		margin-bottom: 20upx;
+		&.logout{
+			padding: 20upx 0;
+			width: 100%;
+			text-align: center;
+			font-size: 32upx;
+			color: #f06c7a;
+		}
 		.row{
 			widows: 100%;
 			min-height: 90upx;

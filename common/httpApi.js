@@ -1,5 +1,6 @@
 import config from '@/common/config.js'
 import http from '@/common/http.js'
+import Vue from 'vue'
 const domain = config.domain
 export default {
 	loadActives (param){
@@ -40,5 +41,23 @@ export default {
 	},
 	loadCart(){
 		return http.post(domain.requestHost + '/loadCart')
+	},
+	profile(){
+		http.post(domain.requestHost + '/profile').then(res => {
+			if(res.success) {
+				let userInfo = {
+					username: res.data.name,
+					avatar: res.data.avatar,
+					signature: res.data.signature,
+					account: res.data.account,
+					moment: res.data.moment
+				}
+				Vue.prototype.$store.dispatch('setUserInfo', userInfo)
+			}
+		}).catch(e => {
+			if(e.callback){
+				e.callback()
+			}
+		})
 	}
 }
