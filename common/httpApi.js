@@ -42,6 +42,12 @@ export default {
 	loadCart(){
 		return http.post(domain.requestHost + '/loadCart')
 	},
+	chooseCartSpu(param){
+		return http.post(domain.requestHost + '/chooseCartSpu', param)
+	},
+	updateCart(param){
+		return http.post(domain.requestHost + '/updateCart', param)
+	},
 	profile(){
 		http.post(domain.requestHost + '/profile').then(res => {
 			if(res.success) {

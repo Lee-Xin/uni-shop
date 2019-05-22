@@ -9,46 +9,43 @@
 		<!-- 商品列表 -->
 		<view class="goods-list">
 			<view class="tis" v-if="goodsList.length==0">购物车是空的哦~</view>
-            <view class="row" v-for="(row,index) in goodsList" :key="index" >
-				<!-- 删除按钮 -->
-				<view class="menu" @tap.stop="deleteGoods(row.id)">
-					<view class="icon shanchu"></view>
-				</view>
-				<!-- 商品 -->
-				<view class="carrier" :class="[theIndex==index?'open':oldIndex==index?'close':'']" @touchstart="touchStart(index,$event)" @touchmove="touchMove(index,$event)" @touchend="touchEnd(index,$event)">
-					<!-- checkbox -->
-					<view class="checkbox-box" @tap="selected(index)">
-						<view class="checkbox">
-							<view :class="[row.selected?'on':'']"></view>
+			<view v-if="showGoodList" class="row" v-for="(row,index) in goodsList" :key="index" >
+				<view class="goods-wrap">
+					<!-- 商品 -->
+					<view class="carrier">
+						<view class="checkbox-box" @tap="select(row)">
+							<view class="checkbox">
+								<view :class="row.selected ? 'on' : ''"></view>
+							</view>
 						</view>
-					</view>
-					<!-- 商品信息 -->
-					<view class="goods-info" @tap="toGoods(row)">
-						<view class="img">
-							<image :src="assetsHost+row.img"></image>
-						</view>
-						<view class="info">
-							<view class="title">{{row.detail}}</view>
-							<view class="price-number">
-								<view class="price">￥{{row.price}}</view>
-								<view class="number">
-									<view class="sub" @tap.stop="sub(index)">
-										<view class="icon jian"></view>
-									</view>
-									<view class="input" @tap.stop="discard">
-										<input type="number" v-model="row.number" @input="sum" />
-									</view>
-									<view class="add"  @tap.stop="add(index)">
-										<view class="icon jia"></view>
+						<!-- 商品信息 -->
+						<view class="goods-info" @tap="toGoods(row)">
+							<view class="img">
+								<image :src="assetsHost+row.img"></image>
+							</view>
+							<view class="info">
+								<view class="title">{{row.detail}}</view>
+								<view class="actives">
+									<view class="active" v-for="(active,i) in row.actives" :key="i">
+										{{active.name}}
 									</view>
 								</view>
+								<view class="price-number" @click.stop="() => {}">
+									<view class="price">￥{{row.price}}</view>
+									<cart-count class="number" :count.sync="row.count" :pid="row.pid" @countChange="countChange"></cart-count>
+								</view>
 							</view>
+						</view>
+					</view>
+					<view v-if="row.activedInfo && row.activedInfo.length > 0" class="actived-info">
+						<view v-for="(info, i) in row.activedInfo" :key="i">
+							{{info}}
 						</view>
 					</view>
 				</view>
 			</view>
         </view>
-		<!-- 脚部菜单 -->
+		<!-- 底部菜单 -->
 		<view class="footer" :style="{bottom:footerbottom}">
 			<view class="checkbox-box" @tap="allSelect">
 				<view class="checkbox">
@@ -58,8 +55,16 @@
 			</view>
 			<view class="delBtn" @tap="deleteList" v-if="selectedList.length>0">删除</view>
 			<view class="settlement">
-				<view class="sum">合计:<view class="money">￥{{sumPrice}}</view></view>
-				<view class="btn" @tap="toConfirmation">结算({{selectedList.length}})</view>
+				<view class="sum">
+					合计:
+					<view class="money">
+						￥{{sumPrice}}
+					</view>
+					<view v-if="prePrice !== sumPrice" class="pre-price">
+						￥{{prePrice}}
+					</view>
+				</view>
+				<view class="btn">结算({{selectedList.length}})</view>
 			</view>
 		</view>
 	</view>
@@ -68,20 +73,22 @@
 <script>
 	import httpApi from '@/common/httpApi.js'
 	import config from '@/common/config.js'
+	import CartCount from '@/components/cart-count.vue'
 	export default {
+		components: {CartCount},
 		data() {
 			return {
 				sumPrice:'0.00',
+				prePrice: '0.00',
+				showGoodList: true,
 				headerPosition:"fixed",
 				headerTop:null,
 				statusTop:null,
 				selectedList:[],
 				isAllselected:false,
-				goodsList:[],
-				//控制滑动效果
-				theIndex:null,
-				oldIndex:null,
-				isStop:false,
+				goodsList:[], // 用于展示
+				activedGoodsList: [],
+				checkedSpus: [], // 选中的商品 pid 数组
 				assetsHost: config.domain.assetsHost
 			}
 		},
@@ -110,10 +117,11 @@
 			// #endif
 		},
 		methods: {
+			// 加载所有商品
 			loadAllProds(){
 				httpApi.loadCart().then(res => {
 					if(res.success){
-						this.goodsList = res.data
+						this.goodsList = JSON.parse(JSON.stringify(res.data))
 					}
 				}).catch(e => {
 					if(e.callback){
@@ -121,161 +129,88 @@
 					}
 				})
 			},
-			//控制左滑删除效果-begin
-			touchStart(index,event){
-				//多点触控不触发
-				if(event.touches.length>1){
-					this.isStop = true;
-					return ;
-				}
-				this.oldIndex = this.theIndex;
-				this.theIndex = null;
-				//初始坐标
-				this.initXY = [event.touches[0].pageX,event.touches[0].pageY];
-			},
-			touchMove(index,event){
-				//多点触控不触发
-				if(event.touches.length>1){
-					this.isStop = true;
-					return ;
-				}
-				let moveX = event.touches[0].pageX - this.initXY[0];
-				let moveY = event.touches[0].pageY - this.initXY[1];
-				
-				if(this.isStop||Math.abs(moveX)<5){
-					return ;
-				}
-				if (Math.abs(moveY) > Math.abs(moveX)){
-					// 竖向滑动-不触发左滑效果
-					this.isStop = true;
-					return;
-				}
-				
-				if(moveX<0){
-					this.theIndex = index;
-					this.isStop = true;
-				}else if(moveX>0){
-					if(this.theIndex!=null&&this.oldIndex==this.theIndex){
-						this.oldIndex = index;
-						this.theIndex = null;
-						this.isStop = true;
-						setTimeout(()=>{
-							this.oldIndex = null;
-						},150)
-					}
-				}
-			},
-			touchEnd(index,$event){
-				//结束禁止触发效果
-				this.isStop = false;
-			},
-			//控制左滑删除效果-end
-			
-			
 			//商品跳转
 			toGoods(e){
 				uni.navigateTo({
 					url: '/pages/goods/goods?pid=' + e.pid 
 				});
 			},
-			//跳转确认订单页面
-			toConfirmation(){
-				let tmpList=[];
-				let len = this.goodsList.length;
-				for(let i=0;i<len;i++){
-					if(this.goodsList[i].selected) {
-						tmpList.push(this.goodsList[i]);
+			// 选择或取消选择商品
+			select(spu){
+				spu.selected = !spu.selected
+				// 选中
+				if(spu.selected){
+					let index = this.checkedSpus.indexOf(spu.pid)
+					if(index === -1){
+						this.checkedSpus.push(spu.pid)
 					}
 				}
-				if(tmpList.length<1){
-					uni.showToast({
-						title:'请选择商品结算',
-						icon:'none'
-					});
-					return ;
-				}
-				uni.setStorage({
-					key:'buylist',
-					data:tmpList,
-					success: () => {
-						uni.navigateTo({
-							url:'../order/confirmation'
-						})
-					}
-				})
-			},
-			//删除商品
-			deleteGoods(id){
-				let len = this.goodsList.length;
-				for(let i=0;i<len;i++){
-					if(id==this.goodsList[i].id){
-						this.goodsList.splice(i, 1);
-						break;
+				// 取消选中
+				else {
+					let index = this.checkedSpus.indexOf(spu.pid)
+					if(index !== -1){
+						this.checkedSpus.splice(index, 1)
 					}
 				}
-				this.sum();
-				this.oldIndex = null;
-				this.theIndex = null;
 			},
-			// 删除商品s
-			deleteList(){
-				let len = this.selectedList.length;
-				for(let i=0;i<len;i++){
-					this.deleteGoods(this.selectedList[i]);
-				}
-				this.selectedList = [];
-				this.isAllselected = this.selectedList.length == this.goodsList.length && this.goodsList.length>0;
-				this.sum();
-			},
-			// 选中商品
-			selected(index){
-				this.goodsList[index].selected = this.goodsList[index].selected?false:true;
-				let i = this.selectedList.indexOf(this.goodsList[index].id);
-				i>-1?this.selectedList.splice(i, 1):this.selectedList.push(this.goodsList[index].id);
-				this.isAllselected = this.selectedList.length == this.goodsList.length;
-				this.sum();
-			},
-			//全选
-			allSelect(){
-				let len = this.goodsList.length;
-				let arr = [];
-				for(let i=0;i<len;i++){
-					this.goodsList[i].selected = this.isAllselected? false : true;
-					arr.push(this.goodsList[i].id);
-				}
-				this.selectedList = this.isAllselected?[]:arr;
-				this.isAllselected = this.isAllselected||this.goodsList.length==0?false : true;
-				this.sum();
-			},
-			// 减少数量
-			sub(index){
-				if(this.goodsList[index].number<=1){
-					return;
-				}
-				this.goodsList[index].number--;
-				this.sum();
-			},
-			// 增加数量
-			add(index){
-				this.goodsList[index].number++;
-				this.sum();
-			},
-			// 合计
-			sum(){
-				this.sumPrice=0;
-				let len = this.goodsList.length;
-				for(let i=0;i<len;i++){
-					if(this.goodsList[i].selected) {
-						this.sumPrice = this.sumPrice + (this.goodsList[i].number*this.goodsList[i].price);
+			// 复制商品信息（根据已选中的商品）
+			computeGoodsList(){
+				for(let i = this.goodsList.length - 1; i >= 0; i--){
+					this.goodsList[i].activedInfo = []
+					for(let j = this.activedGoodsList.length - 1; j >= 0; j--){
+						if(this.activedGoodsList[j].pid === this.goodsList[i].pid){
+							this.goodsList[i].activedInfo = this.activedGoodsList[j].activedInfo
+						}
 					}
 				}
-				this.sumPrice = this.sumPrice.toFixed(2);
 			},
-			discard() {
-				//丢弃
+			// 选择商品，计算总价、活动信息等
+			async chooseCartSpu(){
+				let res = await httpApi.chooseCartSpu({spu_arr: this.checkedSpus})
+				if(res.success){
+					this.activedGoodsList = res.data.allSpu
+					this.sumPrice = res.data.allSpuInfo.price
+					this.prePrice = res.data.allSpuInfo.prePrice
+					this.computeGoodsList()
+					
+					// 触发视图更新
+					this.showGoodList = false
+					this.$nextTick(() => {
+						this.showGoodList = true
+					})
+				}
+			},
+			async countChange(param){
+				let res = await httpApi.updateCart(param)
+				
+				if(param.count == 0){
+					// 从选中列表中移除
+					let index = this.checkedSpus.indexOf(param.pid)
+					if(index !== -1){
+						this.checkedSpus.splice(index, 1)
+					}
+					// 从购物车列表中移除
+					
+					for(let i = this.goodsList.length - 1; i >= 0; i--){
+						if(this.goodsList[i].pid === param.pid){
+							this.goodsList.splice(i, 1)
+							break
+						}
+					}
+					
+				}
+				
+				this.chooseCartSpu()
+
 			}
-			
-			
+		},
+		watch:{
+			checkedSpus: {
+				handler(val){
+					this.chooseCartSpu()
+				},
+				deep: true
+			}
 		}
 	}
 </script>
@@ -301,6 +236,7 @@
 	.checkbox-box{
 		display: flex;
 		align-items: center;
+		margin-right: 20upx;
 		.checkbox{
 			width: 35upx;
 			height: 35upx;
@@ -372,9 +308,7 @@
 		}
 		.row{
 			width: calc(92%);
-			height: calc(22vw + 40upx); 
 			margin: 20upx auto;
-			
 			border-radius: 15upx;
 			box-shadow: 0upx 5upx 20upx rgba(0,0,0,0.1);
 			display: flex;
@@ -400,6 +334,14 @@
 				z-index: 2;
 			}
 			.carrier{
+				width: 100%;
+				padding: 20upx;
+				height: 100%;
+				z-index: 3;
+				display: flex;
+				align-items: center;
+				background-color: #fff;
+
 				@keyframes showMenu {
 					0% {transform: translateX(0);}100% {transform: translateX(-30%);}
 				}
@@ -412,25 +354,21 @@
 				&.close{
 					animation: closeMenu 0.15s linear both;
 				}
-				background-color: #fff;
-				.checkbox-box{
-					padding-left: 20upx;
-					flex-shrink: 0;
-					height: 22vw;
-					margin-right: 20upx;
+				/deep/.checkbox{
+					.uni-checkbox-input{
+						border-radius: 50%;
+					}
+					.uni-checkbox-input-checked{
+						background-color: #f06c7a;
+						color: #ffffff!important;
+						border-color: #f06c7a;
+					}
 				}
-				position: absolute;
-				width: 100%;
-				padding: 0 0;
-				height: 100%;
-				z-index: 3;
-				display: flex;
-				align-items: center;
-
 				.goods-info{
 					width: 100%;
 					display: flex;
 					padding-right: 20upx;
+					align-items: center;
 					.img{
 						width: 22vw;
 						height: 22vw;
@@ -445,11 +383,9 @@
 					}
 					.info{
 						width: 100%;
-						height: 22vw;
-						overflow: hidden;
 						display: flex;
 						flex-wrap: wrap;
-						position: relative;
+						padding-right: 20upx;
 						.title{
 							width: 100%;
 							font-size: 28upx;
@@ -470,15 +406,27 @@
 							border-radius: 15upx;
 							margin-bottom: 20vw;
 						}
+						.actives{
+							&:after{
+								content: '';
+								display: block;
+								clear: both;
+							}
+							.active{
+								float: left;
+								padding: 4upx 6upx;
+								margin: 10upx 10upx 10upx 0;
+								font-size: 24upx;
+								background-color: #f06c7a;
+								color: #ffffff;
+							}
+						}
 						.price-number{
-							position: absolute;
 							width: 100%;
-							bottom: 0upx;
 							display: flex;
 							justify-content: space-between;
 							align-items: flex-end;
 							font-size: 28upx;
-							height: 60upx;
 							.price{
 								color: #f47925;
 							}
@@ -486,40 +434,16 @@
 								display: flex;
 								justify-content: center;
 								align-items: flex-end;
-								.input{
-									width: 60upx;
-									height: 60upx;
-									margin: 0 10upx;
-									background-color: #f3f3f3;
-									input{
-										width: 60upx;
-										height: 60upx;
-										display: flex;
-										justify-content: center;
-										align-items: center;
-										text-align: center;
-										font-size: 26upx;
-									}
-								}
-								.sub ,.add{
-									width: 45upx;
-									height: 45upx;
-									background-color: #f3f3f3;
-									border-radius: 5upx;
-									.icon{
-										font-size: 22upx;
-										width: 45upx;
-										height: 45upx;
-										display: flex;
-										justify-content: center;
-										align-items: center;
-										
-									}
-								}
 							}
 						}
 					}
 				}
+			}
+			.actived-info{
+				padding: 10upx 20upx;
+				border-top: solid 1px #efefef;
+				font-size: 24upx;
+				color: #666666;
 			}
 		}
 	}
@@ -546,18 +470,25 @@
 			align-items: center;
 		}
 		.settlement{
-			width: 60%;
+			flex: 1;
 			display: flex;
 			justify-content: flex-end;
 			align-items: center;
 			.sum{
-				width: 50%;
 				font-size: 28upx;
 				margin-right: 10upx;
+				line-height: 38upx;
 				display: flex;
 				justify-content: flex-end;
 				.money{
 					font-weight: 600;
+					margin-left: 10upx;
+				}
+				.pre-price{
+					font-size: 24upx;
+					text-decoration: line-through;
+					vertical-align: middle;
+					margin: 0 10upx;
 				}
 			}
 			.btn{
