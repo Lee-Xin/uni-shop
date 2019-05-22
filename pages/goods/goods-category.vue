@@ -12,14 +12,13 @@
 <script>
 	import WucTab from '@/components/wuc-tab'
 	import GoodsList from '@/components/goods-list'
+	import httpApi from '@/common/httpApi.js'
 	export default {
 		components: { WucTab, GoodsList},
 		data() {
 			return {
-				cates: [],
 				tabList: [],
 				tabGoodsList: [],
-				TabCur: 0,
 			};
 		},
 		onPageScroll(e){
@@ -35,22 +34,15 @@
 			this.productCates({parentId: option.parentId})
 		},
 		methods: {
-			productCates({parentId}){
-				uni.request({
-					url: 'http://localhost:3000/getProductsByParent',
-					method: 'GET',
-					data: {parentId},
-					success: res => {
-						this.cates = res.data.data
-						let cates = res.data.data
-						Object.keys(cates).forEach(cate => {
-							this.tabList.push({name: cates[cate[0]][0].cate_name})
-							this.tabGoodsList.push(cates[cate[0]])
-						})
-					},
-					fail: () => {},
-					complete: () => {}
-				});
+			async productCates({parentId}){
+				let res = await httpApi.getProductsByParent({parentId: parentId})
+				if(res.success){
+					let cates = res.data
+					Object.keys(cates).forEach(cate => {
+						this.tabList.push({name: cates[cate][0].cate_name})
+						this.tabGoodsList.push(cates[cate])
+					})
+				}
 			},
 			swiperChange2(e) {
 			    let { current } = e.target;

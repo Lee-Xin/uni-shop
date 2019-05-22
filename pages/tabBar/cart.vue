@@ -110,9 +110,16 @@
 			// #endif
 		},
 		methods: {
-			async loadAllProds(){
-				let res = await httpApi.loadCart()
-				this.goodsList = res.data
+			loadAllProds(){
+				httpApi.loadCart().then(res => {
+					if(res.success){
+						this.goodsList = res.data
+					}
+				}).catch(e => {
+					if(e.callback){
+						e.callback()
+					}
+				})
 			},
 			//控制左滑删除效果-begin
 			touchStart(index,event){
