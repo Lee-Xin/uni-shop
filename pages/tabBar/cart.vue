@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="wrap">
 		<view class="status" :style="{position:headerPosition,top:statusTop}"></view>
 		<view class="header" :style="{position:headerPosition,top:headerTop}">
 			<view class="title">购物车</view>
@@ -273,6 +273,9 @@
 			&:before{content:"\e6a4";}
 		}
 		
+	}
+	.wrap{
+		padding-bottom: 80upx;
 	}
 	.checkbox-box{
 		display: flex;
