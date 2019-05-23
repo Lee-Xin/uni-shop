@@ -47,24 +47,23 @@
         </view>
 		<!-- 底部菜单 -->
 		<view class="footer" :style="{bottom:footerbottom}">
-			<view class="checkbox-box" @tap="allSelect">
+			<view class="checkbox-box" @tap="selectAll">
 				<view class="checkbox">
 					<view :class="[isAllselected?'on':'']"></view>
 				</view>
 				<view class="text">全选</view>
 			</view>
-			<view class="delBtn" @tap="deleteList" v-if="selectedList.length>0">删除</view>
 			<view class="settlement">
 				<view class="sum">
 					合计:
 					<view class="money">
-						￥{{sumPrice}}
+						￥{{allSpuInfo.price}}
 					</view>
-					<view v-if="prePrice !== sumPrice" class="pre-price">
-						￥{{prePrice}}
+					<view v-if="allSpuInfo.prePrice !== allSpuInfo.price" class="pre-price">
+						￥{{allSpuInfo.prePrice}}
 					</view>
 				</view>
-				<view class="btn">结算({{selectedList.length}})</view>
+				<view class="btn">结算({{allSpuInfo.count}})</view>
 			</view>
 		</view>
 	</view>
@@ -78,17 +77,18 @@
 		components: {CartCount},
 		data() {
 			return {
-				sumPrice:'0.00',
-				prePrice: '0.00',
 				showGoodList: true,
 				headerPosition:"fixed",
 				headerTop:null,
 				statusTop:null,
-				selectedList:[],
-				isAllselected:false,
 				goodsList:[], // 用于展示
 				activedGoodsList: [],
 				checkedSpus: [], // 选中的商品 pid 数组
+				allSpuInfo: {
+					price: 0,
+					prePrice: 0,
+					count: 0
+				}, // 选中的商品总信息
 				assetsHost: config.domain.assetsHost
 			}
 		},
@@ -115,6 +115,14 @@
 			// #ifdef APP-PLUS
 			this.statusHeight = plus.navigator.getStatusbarHeight();
 			// #endif
+		},
+		computed:{
+			isAllselected () {
+				if(this.checkedSpus.length === this.goodsList.length){
+					return true
+				}
+				return false
+			}
 		},
 		methods: {
 			// 加载所有商品
@@ -158,7 +166,7 @@
 					}
 				}
 			},
-			// 复制商品信息（根据已选中的商品）
+			// 重置商品列表信息（根据已选中的商品计算： activedInfo）
 			computeGoodsList(){
 				for(let i = this.goodsList.length - 1; i >= 0; i--){
 					this.goodsList[i].activedInfo = []
@@ -174,8 +182,7 @@
 				let res = await httpApi.chooseCartSpu({spu_arr: this.checkedSpus})
 				if(res.success){
 					this.activedGoodsList = res.data.allSpu
-					this.sumPrice = res.data.allSpuInfo.price
-					this.prePrice = res.data.allSpuInfo.prePrice
+					this.allSpuInfo = res.data.allSpuInfo
 					this.computeGoodsList()
 					
 					// 触发视图更新
@@ -207,12 +214,36 @@
 				
 				// 数量改变后，执行选计算购物车方法
 				this.chooseCartSpu()
-
+			},
+			selectAll(){
+				if(this.isAllselected){
+					this.checkedSpus = []
+				} else {
+					this.goodsList.forEach(t => {
+						if(this.checkedSpus.indexOf(t.pid) === -1){
+							this.checkedSpus.push(t.pid)
+						}
+					})
+				}
 			}
 		},
 		watch:{
 			checkedSpus: {
 				handler(val){
+					// 全部取消选中
+					if(val.length === 0){
+						this.goodsList.forEach(t => {
+							t.selected = 0
+						})
+					} else {
+						val.forEach(pid => {
+							this.goodsList.forEach(t => {
+								if(pid === t.pid){
+									t.selected = 1
+								}
+							})
+						})
+					}
 					this.chooseCartSpu()
 				},
 				deep: true
