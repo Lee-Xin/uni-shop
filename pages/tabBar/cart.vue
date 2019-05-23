@@ -63,7 +63,7 @@
 						￥{{allSpuInfo.prePrice}}
 					</view>
 				</view>
-				<view class="btn">结算({{allSpuInfo.count}})</view>
+				<view class="btn">下单({{allSpuInfo.count}})</view>
 			</view>
 		</view>
 	</view>
@@ -105,6 +105,7 @@
 		    }, 1000);
 		},
 		onShow(){
+			this.checkedSpus = []
 			this.loadAllProds()
 		},
 		onLoad() {
