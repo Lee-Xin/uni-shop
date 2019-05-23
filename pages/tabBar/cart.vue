@@ -122,6 +122,11 @@
 				httpApi.loadCart().then(res => {
 					if(res.success){
 						this.goodsList = JSON.parse(JSON.stringify(res.data))
+						this.goodsList.forEach(t => {
+							if(t.selected){
+								this.checkedSpus.push(t.pid)
+							}
+						})
 					}
 				}).catch(e => {
 					if(e.callback){
@@ -200,6 +205,7 @@
 					
 				}
 				
+				// 数量改变后，执行选计算购物车方法
 				this.chooseCartSpu()
 
 			}
