@@ -66,6 +66,8 @@
 				<view class="btn">下单({{allSpuInfo.count}})</view>
 			</view>
 		</view>
+		<!-- 推荐商品 -->
+		<recommend :cates="[1,2,3]"></recommend>
 	</view>
 </template>
 
@@ -73,8 +75,9 @@
 	import httpApi from '@/common/httpApi.js'
 	import config from '@/common/config.js'
 	import CartCount from '@/components/cart-count.vue'
+	import Recommend from '@/components/recommend.vue'
 	export default {
-		components: {CartCount},
+		components: {CartCount, Recommend},
 		data() {
 			return {
 				showGoodList: true,
@@ -335,7 +338,7 @@
 	}
 	.goods-list{
 		width: 100%;
-		padding: 20upx 0 120upx 0;
+		padding: 20upx 0 20upx 0;
 		.tis{
 			width: 100%;
 			height: 60upx;

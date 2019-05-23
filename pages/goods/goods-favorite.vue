@@ -36,7 +36,7 @@
 			空空如也~
 		</view>
 		<view class="recommand">
-			<recommend :cates="likeCates"></recommend>
+			<recommend v-if="likeCates.length > 0" :cates="likeCates"></recommend>
 		</view>
 	</view>
 </template>

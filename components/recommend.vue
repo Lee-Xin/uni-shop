@@ -23,6 +23,11 @@
 				goodsList: []
 			}
 		},
+		mounted(){
+			if(this.cates.length > 0){
+				this.getGoodsByCates(this.cates)
+			}
+		},
 		methods: {
 			async getGoodsByCates(cates){
 				this.goodsList = []
@@ -34,14 +39,6 @@
 					})
 					this.goodsList = this.goodsList.concat(goodsArr)
 				}
-			}
-		},
-		watch: {
-			cates: {
-				handler(val){
-					this.getGoodsByCates(val)
-				},
-				deep: true
 			}
 		}
 	}
