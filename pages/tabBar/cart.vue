@@ -63,7 +63,7 @@
 						￥{{allSpuInfo.prePrice}}
 					</view>
 				</view>
-				<view class="btn">下单({{allSpuInfo.count}})</view>
+				<view @tap="toOrder" class="btn">下单({{allSpuInfo.count}})</view>
 			</view>
 		</view>
 		<!-- 推荐商品 -->
@@ -229,6 +229,20 @@
 						}
 					})
 				}
+			},
+			toOrder(){
+				let paramGoods = []
+				this.activedGoodsList.forEach(t => {
+					paramGoods.push({
+						pid: t.pid,
+						count: t.count
+					})
+				})
+				httpApi.orderController.newOrder({goods: paramGoods}).then(res => {
+					console.log(res);
+				}).catch(e => {
+					console.log(e);
+				})
 			}
 		},
 		watch:{

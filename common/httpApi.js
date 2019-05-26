@@ -71,5 +71,10 @@ export default {
 	},
 	getSimilarity(param){
 		return http.get(domain.requestHost + '/getSimilarity', param)
+	},
+	orderController:{
+		newOrder(param){
+			return http.post(domain.requestHost + '/newOrder', param)
+		}
 	}
 }
