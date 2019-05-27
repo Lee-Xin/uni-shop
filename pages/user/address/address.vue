@@ -1,9 +1,9 @@
 <template>
 	<view class="wrap">
-		<view class="add">
+		<view @tap="editAddr" class="add">
 			添加新地址
 		</view>
-		<view class="each-addr" :class="{'manageOn': showManage}" v-for="(addr,i) in addrList" :key="i">
+		<view @tap="editAddr({addressId: addr.id})" class="each-addr" :class="{'manageOn': showManage}" v-for="(addr,i) in addrList" :key="i">
 			<view class="checkbox" :class="{on: addr.selected}" @tap="select(i)">
 				<view class="inner"></view>
 			</view>
@@ -97,6 +97,11 @@
 						icon: 'none'
 					});
 				}
+			},
+			editAddr({addressId}){
+				uni.navigateTo({
+					url: `/pages/user/address/edit${addressId ? '?addressId=' + addressId : ''}`
+				});
 			}
 		}
 	}

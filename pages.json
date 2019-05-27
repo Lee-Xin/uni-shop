@@ -186,6 +186,12 @@
 				"navigationBarTitleText": "收货地址"
 			}
         }
+        ,{
+            "path" : "pages/user/address/edit",
+            "style" : {
+				"navigationBarTitleText": "收货地址"
+			}
+        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

@@ -78,8 +78,8 @@ export default {
 		}
 	},
 	userController: {
-		getAddr(){
-			return http.get(domain.requestHost + '/getAddr')
+		getAddr(param){
+			return http.get(domain.requestHost + '/getAddr', param)
 		},
 		setDefaultAddr(param){
 			return http.post(domain.requestHost + '/setDefaultAddr', param)
