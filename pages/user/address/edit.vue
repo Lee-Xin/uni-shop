@@ -10,17 +10,23 @@
 		</view>
 		<view class="input-wrap">
 			<view>选择地区</view>
-			<view @tap="showRegion" style="flex: 1; text-align: right;">
+			<view @tap="showRegion" style="flex: 1; text-align: right;height: 50upx;">
 				{{regionResult}}
+				<view v-show="!regionResult" class="placeholder">请选择</view>
 			</view>
 		</view>
 		<view class="input-wrap">
 			<view>详细地址</view>
-			<input type="text" :value="addressInfo.detail">
+			<input type="text" v-model="addressInfo.detail" placeholder="请输入详细地址">
 		</view>
 		<view class="input-wrap">
 			<view>是否默认</view>
-			
+			<view style="flex: 1; text-align: right;">
+				<switch :checked="addressInfo.is_default === 1" color="#f06c7a" @change="checkDefault" />
+			</view>
+		</view>
+		<view>
+			<button @tap="submit" class="submit">确定</button>
 		</view>
 		<w-picker mode="region" step="1" :defaultVal="defaultVal" @confirm="onConfirm" ref="picker" themeColor="#f00"></w-picker>
 	</view>
@@ -36,19 +42,20 @@
 				addressId: '',
 				addressInfo: {
 					receiver: '',
+					detail: '',
 					tel: '',
 					province: '',
 					city: '',
-					district: ''
+					district: '',
+					is_default: 0
 				},
 				regionResult: '',
 				defaultVal: [21,0,2], //初始化 重庆市渝中区
 			};
 		},
 		onLoad(option){
-			if(option){
-				this.addressId = option.addressId
-				this.getAddr(this.addressId)
+			if(option.addressId){
+				this.getAddr(option.addressId)
 			}
 		},
 		methods: {
@@ -69,14 +76,57 @@
 				}
 			},
 			onConfirm(val){
-				console.log(val);
 				this.addressInfo.province = val.checkArr[0]
 				this.addressInfo.city = val.checkArr[1]
 				this.addressInfo.district = val.checkArr[2]
 				this.regionResult = val.result
 			},
 			showRegion(){
-				this.$refs.picker.show();
+				this.$refs.picker.show()
+			},
+			checkDefault(val){
+				this.addressInfo.is_default = val.detail.value ? 1 : 0
+			},
+			async submit(){
+				for(let key in this.addressInfo){
+					if(this.addressInfo[key] === ''){
+						uni.showToast({
+							title: '请完善地址信息',
+							mask: false,
+							duration: 1500,
+							icon: 'none'
+						});
+						return
+					}
+				}
+				// 编辑
+				if(this.addressInfo.id){
+					let res = await httpApi.userController.editAddr(this.addressInfo)
+					if(res.success){
+						uni.navigateBack();
+					} else {
+						uni.showToast({
+							title: res.message,
+							mask: false,
+							duration: 1500,
+							icon: 'none'
+						});
+					}
+				}
+				// 新增
+				else {
+					let res = await httpApi.userController.newAddr(this.addressInfo)
+					if(res.success){
+						uni.navigateBack();
+					} else {
+						uni.showToast({
+							title: res.message,
+							mask: false,
+							duration: 1500,
+							icon: 'none'
+						});
+					}
+				}
 			}
 		}
 	}
@@ -97,5 +147,13 @@
 			flex: 1;
 			text-align: right;
 		}
+		.placeholder{
+			color: #7d7d7d;
+		}
+	}
+	.submit{
+		margin: 30upx;
+		background-color: #f06c7a;
+		color: #ffffff;
 	}
 </style>

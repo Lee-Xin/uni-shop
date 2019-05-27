@@ -85,7 +85,6 @@
 			display: none;
 			font-size: 26upx;
 			line-height: 26upx;
-			margin-bottom: 6upx;
 		}
 	}
 </style>

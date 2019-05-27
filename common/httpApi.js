@@ -83,6 +83,15 @@ export default {
 		},
 		setDefaultAddr(param){
 			return http.post(domain.requestHost + '/setDefaultAddr', param)
+		},
+		newAddr(param){
+			return http.post(domain.requestHost + '/newAddr', param)
+		},
+		editAddr(param){
+			return http.post(domain.requestHost + '/editAddr', param)
+		},
+		delAddr(param){
+			return http.post(domain.requestHost + '/delAddr', param)
 		}
 	}
 }

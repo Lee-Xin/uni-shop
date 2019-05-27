@@ -4,7 +4,7 @@
 			添加新地址
 		</view>
 		<view @tap="editAddr({addressId: addr.id})" class="each-addr" :class="{'manageOn': showManage}" v-for="(addr,i) in addrList" :key="i">
-			<view class="checkbox" :class="{on: addr.selected}" @tap="select(i)">
+			<view class="checkbox" :class="{on: addr.selected}" @tap.stop="select(i)">
 				<view class="inner"></view>
 			</view>
 			<addr-label :addr="addr"></addr-label>
@@ -15,7 +15,7 @@
 				{{showManage ? '完成' : '管理'}}
 			</view>
 			<view class="btns">
-				<view class="btn">
+				<view @tap="delAddr" class="btn">
 					删除
 				</view>
 				<view @tap="setDefault" class="btn set-default" v-show="showDel">
@@ -46,7 +46,7 @@
 				return false
 			}
 		},
-		onLoad(){
+		onShow(){
 			this.getAddr()
 		},
 		methods: {
@@ -102,6 +102,30 @@
 				uni.navigateTo({
 					url: `/pages/user/address/edit${addressId ? '?addressId=' + addressId : ''}`
 				});
+			},
+			async delAddr(){
+				let selected = this.addrList.filter(t => t.selected)
+				if(selected.length === 0){
+					uni.showToast({
+						title: '请选择要删除的地址',
+						mask: false,
+						duration: 1500,
+						icon: 'none'
+					});
+					return
+				}
+				let res = await httpApi.userController.delAddr({addrs: selected.map(t => t.id)})
+				if(res.success){
+					this.showManage = false
+					this.getAddr()
+				} else {
+					uni.showToast({
+						title: res.message,
+						mask: false,
+						duration: 1500,
+						icon: 'none'
+					});
+				}
 			}
 		}
 	}
@@ -109,6 +133,7 @@
 
 <style lang="scss" scoped>
 	.wrap{
+		padding-bottom: 100upx;
 		.add{
 			padding: 20upx;
 			margin: 20upx 40upx;
