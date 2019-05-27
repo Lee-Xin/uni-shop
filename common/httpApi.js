@@ -24,7 +24,7 @@ export default {
 	productProperty(param){
 		return http.get(domain.requestHost + '/productProperty', param)
 	},
-	async isFavorite(param){
+	isFavorite(param){
 		return http.post(domain.requestHost + '/isFavorite', param)
 	},
 	login(param){
@@ -75,6 +75,14 @@ export default {
 	orderController:{
 		newOrder(param){
 			return http.post(domain.requestHost + '/newOrder', param)
+		}
+	},
+	userController: {
+		getAddr(){
+			return http.get(domain.requestHost + '/getAddr')
+		},
+		setDefaultAddr(param){
+			return http.post(domain.requestHost + '/setDefaultAddr', param)
 		}
 	}
 }

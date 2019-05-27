@@ -110,7 +110,10 @@
 					{text:'新客豪礼',img:'../../static/img/user/renw.png'},
 					{text:'领红包',img:'../../static/img/user/momey.png'},
 					
-					{text:'收货地址',img:'../../static/img/user/addr.png'},
+					{text:'收货地址',img:'../../static/img/user/addr.png', link: {
+						type: 'navigator',
+						url: '/pages/user/address/address'
+					}},
 					{text:'账户安全',img:'../../static/img/user/security.png'},
 					{text:'银行卡',img:'../../static/img/user/bank.png'},
 					{text:'抽奖',img:'../../static/img/user/choujiang.png'},
