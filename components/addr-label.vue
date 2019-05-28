@@ -1,5 +1,6 @@
 <template>
 	<view :class="{default: parseInt(addr.is_default) === 1}" class="addr-wrap">
+		<image class="location" src="/static/img/addricon.png" mode=""></image>
 		<view class="info">
 			<view class="user-info">
 				<view class="name">
@@ -54,6 +55,11 @@
 			.default{
 				display: block;
 			}
+		}
+		.location{
+			width: 60upx;
+			height: 60upx;
+			margin-right: 20upx;
 		}
 		.info{
 			flex: 1;

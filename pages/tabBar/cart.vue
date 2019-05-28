@@ -63,7 +63,7 @@
 						￥{{allSpuInfo.prePrice}}
 					</view>
 				</view>
-				<view @tap="toOrder" class="btn">下单({{allSpuInfo.count}})</view>
+				<view @tap="toOrder" class="btn" :class="{disabled: activedGoodsList.length === 0}">下单({{allSpuInfo.count}})</view>
 			</view>
 		</view>
 		<!-- 推荐商品 -->
@@ -231,18 +231,12 @@
 				}
 			},
 			toOrder(){
-				let paramGoods = []
-				this.activedGoodsList.forEach(t => {
-					paramGoods.push({
-						pid: t.pid,
-						count: t.count
-					})
-				})
-				httpApi.orderController.newOrder({goods: paramGoods}).then(res => {
-					console.log(res);
-				}).catch(e => {
-					console.log(e);
-				})
+				if(this.checkedSpus.length === 0){
+					return
+				}
+				uni.navigateTo({
+					url: '/pages/order/confirmation?spuInfo=' + this.checkedSpus.join(',')
+				});
 			}
 		},
 		watch:{
@@ -557,8 +551,10 @@
 				display: flex;
 				justify-content: center;
 				align-items: center;
-				
 				border-radius: 30upx;
+				&.disabled{
+					background-color: #a7a7a7;
+				}
 			}
 		}
 	}

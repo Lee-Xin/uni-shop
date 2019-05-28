@@ -1,87 +1,63 @@
 <template>
-	<view>
-		<!-- 收货地址 -->
-		<view class="addr">
-			<view class="icon">
-				<image src="../../static/img/addricon.png" mode=""></image>
+	<view class="wrap">
+		<addr-label class="addr-label" v-if="addr" :addr="addr"></addr-label>
+		<view v-else @tap="addAddr" class="add-addr">添加收货地址</view>
+		<view class="goods-list">
+			<view class="brand">
+				厂家品牌：青岛欧派
 			</view>
-			<view class="right">
-				<view class="tel-name">
-					<view class="name">
-						小王子
-					</view>
-					<view class="tel">
-						188****1688
-					</view>
-				</view>
-				<view class="addres">
-					广东省广州市越秀区沙河大街1024-8号
-				</view>
-			</view>
-		</view>
-		<!-- 购买商品列表 -->
-		<view class="buy-list">
-			<view class="row" v-for="(row,index) in buylist" :key="index">
-				<view class="goods-info">
+			<view class="goods-wrap">
+				<view class="each-goods" v-for="(spu,i) in goodsList" :key="i">
 					<view class="img">
-						<image :src="row.img"></image>
+						<img :src="assetsHost + spu.img">
 					</view>
-					<view class="info">
-						<view class="title">{{row.name}}</view>
-						<view class="spec">选择{{row.spec}} 数量:{{row.number}}</view>
-						<view class="price-number">
-							<view class="price">￥{{row.price*row.number}}</view>
-							<view class="number">
-								
+					<view class="spu-info">
+						<view class="name">
+							{{spu.detail}}
+						</view>
+						<view class="actives">
+							<view class="each-active" v-for="(active, j) in spu.actives" :key="j">
+								{{active.des}}
+							</view>
+						</view>
+						<view class="actived-info">
+							<view class="each-actived" v-for="(active, j) in spu.activedInfo" :key="j">
+								{{active}}
 							</view>
 						</view>
 					</view>
+					<view class="price">
+						¥{{spu.price}}
+						<view class="count">
+							× {{spu.count}}
+						</view>
+					</view>
 				</view>
-			</view>
-		</view>
-		<!-- 提示-备注 -->
-		<view class="order">
-			<view class="row">
-				<view class="left">
-					积分 :
+				<view class="ext-info">
+					<view class="cell">
+						<view>配送方式</view>
+						<view class="content">普通配送</view>
+						<view>快递 免邮</view>
+						<view class="arrow"><view class="icon xiangyou"></view></view>
+					</view>
+					<view class="cell">
+						<view>订单备注</view>
+						<view class="content">
+							<input v-model="remark" type="text" placeholder="选填, 订单备注">
+						</view>
+					</view>
 				</view>
-				<view class="right">
-					已扣除{{int}}积分抵扣{{deduction}}元
-				</view>
-			</view>
-			<view class="row">
-				<view class="left">
-					备注 :
-				</view>
-				<view class="right">
-					<input placeholder="选填,备注内容" v-model="note" />
-				</view>
-			</view>
-		</view>
-		<!-- 明细 -->
-		<view class="detail">
-			<view class="row">
-				<view class="nominal">
-					商品金额
-				</view>
-				<view class="content">
-					￥{{goodsPrice}}
-				</view>
-			</view>
-			<view class="row">
-				<view class="nominal">
-					运费
-				</view>
-				<view class="content">
-					￥+{{freight}}
-				</view>
-			</view>
-			<view class="row">
-				<view class="nominal">
-					积分抵扣
-				</view>
-				<view class="content">
-					￥-{{deduction}}
+				<view class="sum">
+					<view class="count">
+						共{{allSpuInfo.count}}件
+					</view>
+					小计：
+					<view class="price">
+						¥{{allSpuInfo.price}}
+					</view>
+					<view class="pre-price">
+						¥{{allSpuInfo.prePrice}}
+					</view>
 				</view>
 			</view>
 		</view>
@@ -90,7 +66,7 @@
 		</view>
 		<view class="footer">
 			<view class="settlement">
-				<view class="sum">合计:<view class="money">￥{{sumPrice}}</view></view>
+				<view class="sum">合计:<view class="money">￥{{allSpuInfo.price}}</view></view>
 				<view class="btn" @tap="toPay">提交订单</view>
 			</view>
 		</view>
@@ -98,204 +74,217 @@
 </template>
 
 <script>
+	import AddrLabel from '@/components/addr-label.vue'
+	import httpApi from '@/common/httpApi.js'
+	import config from '@/common/config.js'
+	let assetsHost = config.domain.assetsHost
 	export default {
+		components: {AddrLabel},
 		data() {
 			return {
-				buylist:[],		//订单列表
-				goodsPrice:0.0,	//商品合计价格
-				sumPrice:0.0,	//用户付款价格
-				freight:12.00,	//运费
-				note:'',		//备注
-				int:1200,		//抵扣积分
-				deduction:0		//抵扣价格
+				addr: null,
+				remark: '',
+				addrList: [], // 收货地址列表
+				goodsList: [],
+				allSpuInfo: {},
+				spuInfo: null,
+				assetsHost: assetsHost,
 			};
 		},
+		onLoad(option){
+			if(option.spuInfo){
+				this.spuInfo = option.spuInfo.split(',')
+			}
+		},
 		onShow() {
-			//页面显示时，加载订单信息
-			uni.getStorage({
-				key:'buylist',
-				success: (ret) => {
-					this.buylist = ret.data;
-					this.goodsPrice=0;
-					//合计
-					let len = this.buylist.length;
-					for(let i=0;i<len;i++){
-						this.goodsPrice = this.goodsPrice + (this.buylist[i].number*this.buylist[i].price);
-					}
-					this.deduction = this.int/100;
-					this.sumPrice = this.goodsPrice-this.deduction+this.freight;
-					//强制保留两位小数，竟然不支持过滤器~~~~~~~ (O..O)
-					this.sumPrice = this.sumPrice.toFixed(2);
-					this.goodsPrice = this.goodsPrice.toFixed(2);
-					this.freight = this.freight.toFixed(2);
-					this.deduction = this.deduction.toFixed(2);
-				}
-			})
-		},
-		onHide() {
-			//页面隐藏清除订单信息
-			this.clearOrder();
-		},
-		onBackPress() {
-			//页面后退时候，清除订单信息
-			this.clearOrder();
+			this.getAddr()
+			this.getSpus()
 		},
 		methods: {
-			clearOrder(){
-				uni.removeStorage({
-					key: 'buylist',
-					success: function (res) {
-						this.buylist = [];
-						console.log('remove buylist success');
+			toPay(){
+				let paramGoods = []
+				this.goodsList.forEach(t => {
+					paramGoods.push({
+						pid: t.pid,
+						count: t.count
+					})
+				})
+				httpApi.orderController.newOrder({goods: paramGoods, remark: this.remark}).then(res => {
+					if(res.success){
+						uni.navigateTo({
+							url: '/pages/user/order_list/order_list'
+						});
+					} else {
+						uni.showToast({
+							title: res.message || '生成订单失败',
+							mask: false,
+							duration: 1500,
+							icon: 'none'
+						});
 					}
+				}).catch(e => {
+					uni.showToast({
+						title: e.message || '系统错误',
+						mask: false,
+						duration: 1500,
+						icon: 'none'
+					});
+				})
+			},
+			getAddr(){
+				httpApi.userController.getAddr().then(res => {
+					if(res.success){
+						if(res.data.length > 0){
+							this.addrList = res.data
+							let defaultAddr = res.data.filter(t => t.is_default === 1)
+							if(defaultAddr[0]){
+								this.addr = defaultAddr[0]
+							} else {
+								this.addr = res.data[0]
+							}
+						}
+					} else {
+						uni.showToast({
+							title: '查询收货地址失败',
+							mask: false,
+							duration: 1500,
+							icon: 'none'
+						});
+					}
+				}).catch(e => {
+					console.log(e);
+				})
+			},
+			addAddr(){
+				uni.navigateTo({
+					url: '/pages/user/address/edit'
 				});
 			},
-			toPay(){
-				//商品列表
-				let goodsid=[];
-				let len = this.buylist.length;
-				for(let i=0;i<len;i++){
-					goodsid.push(this.buylist[i].id);
+			async getSpus(){
+				if(!this.spuInfo){
+					uni.showToast({
+						title: '缺少商品信息参数',
+						mask: false,
+						duration: 1500,
+						icon: 'none'
+					});
+					return
+				}
+				let res = await httpApi.chooseCartSpu({spu_arr: this.spuInfo})
+				if(res.success){
+					this.goodsList = res.data.allSpu
+					this.allSpuInfo = res.data.allSpuInfo
 				}
 			}
 		}
 	}
 </script>
 
-<style lang="scss">
-.addr{
-	width: 86%;
-	padding: 20upx 3%;
-	margin: 30upx auto 20upx auto;
-	box-shadow: 0upx 5upx 20upx rgba(0,0,0,0.1);
-	border-radius: 20upx;
-	display: flex;
-	.icon{
-		width: 80upx;
-		height: 80upx;
-		display: flex;
-		align-items: center;
-		image{
-			width: 60upx;
-			height: 60upx;
+<style lang="scss" scoped>
+	.wrap{
+		color: #333333;
+		.addr-label{
+			margin: 20upx 30upx;
 		}
-	}
-	.tel-name{
-		width: 100%;
-		display: flex;
-		font-size: 32upx;
-		.tel{
-			margin-left: 40upx;
+		.add-addr{
+			padding: 20upx;
+			margin: 20upx;
+			box-shadow: 0px 4upx 20upx rgba(0, 0, 0, 0.1);
+			font-size: 32upx;
+			text-align: center;
 		}
-	}
-	.addres{
-		width: 100%;
-		font-size: 26upx;
-		color: #999;
-	}
-}
-.buy-list{
-	width: 86%;
-	padding: 10upx 3%;
-	margin: 30upx auto 20upx auto;
-	box-shadow: 0upx 5upx 20upx rgba(0,0,0,0.1);
-	border-radius: 20upx;
-	.row{
-		margin: 30upx 0;
-		.goods-info{
-			width: 100%;
-			display: flex;
-			.img{
-				width: 22vw;
-				height: 22vw;
-				border-radius: 10upx;
-				overflow: hidden;
-				flex-shrink: 0;
-				margin-right: 10upx;
-				image{
-					width: 22vw;
-					height: 22vw;
-				}
+		.goods-list{
+			padding: 20upx;
+			margin: 30upx;
+			box-shadow: 0px 4upx 20upx rgba(0, 0, 0, 0.1);
+			.brand{
+				font-size: 28upx;
 			}
-			.info{
-				width: 100%;
-				height: 22vw;
-				overflow: hidden;
-				display: flex;
-				flex-wrap: wrap;
-				position: relative;
-				.title{
-					width: 100%;
-					font-size: 28upx;
-					display: -webkit-box;
-					-webkit-box-orient: vertical;
-					-webkit-line-clamp: 2;
-					// text-align: justify;
-					overflow: hidden;
-				}
-				.spec{
-					font-size: 22upx;
-					background-color: #f3f3f3;
-					color: #a7a7a7;
-					height: 40upx;
+			.goods-wrap{
+				.each-goods{
 					display: flex;
-					align-items: center;
-					padding: 0 10upx;
-					border-radius: 20upx;
-					margin-bottom: 20vw;
-				}
-				.price-number{
-					position: absolute;
-					width: 100%;
-					bottom: 0upx;
-					display: flex;
-					justify-content: space-between;
-					align-items: flex-end;
-					font-size: 28upx;
-					height: 40upx;
+					padding: 10upx;
+					font-size: 26upx;
+					.img{
+						width: 180upx;
+						height: 180upx;
+						font-size: 0;
+						img{
+							width: 100%;
+							height: 100%;
+						}
+					}
+					.spu-info{
+						flex: 1;
+						padding: 10upx 20upx;
+						line-height: 1.3;
+						.actives{
+							.each-active{
+								display: inline-block;
+								margin: 10upx 10upx 10upx 0;
+								padding: 6upx 10upx;
+								color: #ffffff;
+								background-color: #f06c7a;
+							}
+						}
+						.actived-info{
+							font-size: 24upx;
+							text-overflow: ellipsis;
+							color: #999;
+						}
+					}
 					.price{
-						color: #f06c7a;
+						padding: 10upx 0;
+						width: 100upx;
+						text-align: right;
+						.count{
+							color: #999;
+						}
 					}
-					.number{
+				}
+				.ext-info{
+					.cell{
+						margin: 20upx 0;
 						display: flex;
-						justify-content: center;
 						align-items: center;
-						
+						font-size: 28upx;
+						.content{
+							padding: 0 20upx;
+							flex: 1;
+							color: #999;
+						}
+					}
+				}
+				.sum{
+					text-align: right;
+					font-size: 28upx;
+					view{
+						display: inline-block;
+					}
+					.count{
+						margin-right: 10upx;
+						color: #999999;
+						font-size: 24upx;
+					}
+					.price{
+						color: #f47925;
+					}
+					.pre-price{
+						margin-left: 10upx;
+						font-size: 26upx;
+						text-decoration: line-through;
+						color: #999999;
 					}
 				}
 			}
 		}
 	}
-}
-.order{
-	width: 86%;
-	padding: 10upx 3%;
-	margin: 30upx auto 20upx auto;
-	box-shadow: 0upx 5upx 20upx rgba(0,0,0,0.1);
-	border-radius: 20upx;
-	.row{
-		margin: 20upx 0;
-		height: 40upx;
-		display: flex;
-		.left{
-			font-size: 28upx;
-		}
-		.right{
-			margin-left: 40upx;
-			font-size: 26upx;
-			color: #999;
-			input{
-				font-size: 26upx;
-				color: #999;
-			}
-		}
+
+	.blck{
+		width: 100%;
+		height: 100upx;
 	}
-}
-.blck{
-	width: 100%;
-	height: 100upx;
-}
-.footer{
+	.footer{
 		width: 92%;
 		padding: 0 4%;
 		background-color: #fbfbfb;
@@ -316,11 +305,14 @@
 			.sum{
 				width: 50%;
 				font-size: 28upx;
-				margin-right: 10upx;
+				margin-right: 20upx;
 				display: flex;
 				justify-content: flex-end;
+				align-items: center;
 				.money{
-					font-weight: 600;
+					color: #f06c7a;
+					font-size: 34upx;
+					vertical-align: baseline;
 				}
 			}
 			.btn{
@@ -336,24 +328,4 @@
 			}
 		}
 	}
-.detail{
-	width: 86%;
-	padding: 10upx 3%;
-	margin: 30upx auto 20upx auto;
-	box-shadow: 0upx 5upx 20upx rgba(0,0,0,0.1);
-	border-radius: 20upx;
-	.row{
-		height: 60upx;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		.nominal{
-			font-size: 28upx;
-		}
-		.content{
-			font-size: 26upx;
-			color: #f06c7a;
-		}
-	}
-}
 </style>

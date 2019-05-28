@@ -89,7 +89,7 @@
 			},
 			async submit(){
 				for(let key in this.addressInfo){
-					if(this.addressInfo[key] === ''){
+					if(this.addressInfo[key] === '' && key !== 'city'){
 						uni.showToast({
 							title: '请完善地址信息',
 							mask: false,
