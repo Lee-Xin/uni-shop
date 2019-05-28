@@ -55,7 +55,7 @@
 					<view class="price">
 						¥{{allSpuInfo.price}}
 					</view>
-					<view class="pre-price">
+					<view v-if="allSpuInfo.prePrice !== allSpuInfo.price" class="pre-price">
 						¥{{allSpuInfo.prePrice}}
 					</view>
 				</view>
