@@ -75,6 +75,9 @@ export default {
 	orderController:{
 		newOrder(param){
 			return http.post(domain.requestHost + '/newOrder', param)
+		},
+		orderList(){
+			return http.get(domain.requestHost + '/orderList')
 		}
 	},
 	userController: {

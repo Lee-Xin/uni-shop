@@ -64,6 +64,9 @@
 				</view>
 			</view>
 		</view> -->
+		<view @tap="toOrder">
+			我的订单
+		</view>
 		<!-- 工具栏 -->
 		<view class="toolbar">
 			<view class="title">工具栏</view>
@@ -177,6 +180,11 @@
 					url:'../login/login'
 				})
 				this.isfirst = false;
+			},
+			toOrder(){
+				uni.navigateTo({
+					url: '/pages/order/order-list'
+				})
 			},
 			isLogin(){
 				//实际应用中,用户登录状态应该用token等方法去维持登录状态.
