@@ -134,16 +134,11 @@
 
 <style lang="scss" scoped>
 	.wrap{
-		padding-top: 80upx;
 		min-height: 100vh;
 		background-color: #f5f5f5;
 		box-sizing: border-box;
 		.status-wrap{
-			position: fixed;
 			display: flex;
-			width: 100%;
-			top: 0;
-			left: 0;
 			background-color: #ffffff;
 			.statu{
 				margin: 0 30upx;

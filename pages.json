@@ -185,18 +185,12 @@
         },
 		{
             "path" : "pages/order/order-list",
-			"style": {
-				"navigationBarTitleText" : "",
-				"navigationBarBackgroundColor":"#f1f1f1",
-				"onReachBottomDistance":50,
-				"h5":{
-					"titleNView":false
-				},
-				"app-plus": {
-					"titleNView": false ,//禁用原生导航栏
-					"bounce":"none"
-				}
-			}
+            "style" : {
+            	"navigationBarTitleText":"我的订单",
+            	"navigationBarBackgroundColor":"#ffffff",
+            	"backgroundColorTop":"#f3f3f3",
+            	"backgroundColorBottom":"#ffffff"
+            }
         }
 		
     ],
