@@ -120,15 +120,6 @@
             }
         }
         ,{
-            "path" : "pages/user/order_list/order_list",
-            "style" : {
-				"navigationBarTitleText":"我的订单",
-				"navigationBarBackgroundColor":"#f8f8f8",
-				"backgroundColorTop":"#f3f3f3",
-				"backgroundColorBottom":"#ffffff"
-			}
-        }
-        ,{
             "path" : "pages/user/setting/setting",
             "style" : {
 				"navigationBarBackgroundColor":"#f8f8f8",
@@ -195,8 +186,11 @@
 		{
             "path" : "pages/order/order-list",
             "style" : {
-				"navigationBarTitleText": "我的订单"
-			}
+            	"navigationBarTitleText":"我的订单",
+            	"navigationBarBackgroundColor":"#f8f8f8",
+            	"backgroundColorTop":"#f3f3f3",
+            	"backgroundColorBottom":"#ffffff"
+            }
         }
 		
     ],

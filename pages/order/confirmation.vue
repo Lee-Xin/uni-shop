@@ -112,7 +112,7 @@
 				httpApi.orderController.newOrder({goods: paramGoods, remark: this.remark}).then(res => {
 					if(res.success){
 						uni.navigateTo({
-							url: '/pages/user/order_list/order_list'
+							url: '/pages/order/order-list'
 						});
 					} else {
 						uni.showToast({

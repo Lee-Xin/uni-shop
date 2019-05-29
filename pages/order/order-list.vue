@@ -1,5 +1,10 @@
 <template>
 	<view class="wrap">
+		<view class="status-wrap">
+			<view class="statu" :class="{active: statuType === statu.type}" @tap="statuType = statu.type" v-for="(statu,i) in statuEnum" :key="i">
+				{{statu.name}}
+			</view>
+		</view>
 		<view class="each-order" v-for="(order,i) in orderList" :key="i">
 			<view class="order-header">
 				<view class="brand">
@@ -43,15 +48,31 @@
 		data(){
 			return {
 				orderList: [],
-				assetsHost: assetsHost
+				assetsHost: assetsHost,
+				statuType: -1,
+				statuEnum: [
+					{
+						type: -1,
+						name: '全部'
+					},
+					{
+						type: 0,
+						name: '待发货'
+					},
+					{
+						type: 1,
+						name: '待收货'
+					}
+				]
 			}
 		},
 		onShow(){
+			this.statuType = -1
 			this.getOrderList()
 		},
 		methods: {
 			getOrderList(){
-				httpApi.orderController.orderList().then(res => {
+				httpApi.orderController.orderList({statu: this.statuType}).then(res => {
 					console.log(res);
 					if(res.success){
 						this.orderList = res.data
@@ -62,7 +83,7 @@
 			},
 			orderStatus(status){
 				if(status === 0){
-					return '待付款'
+					return '未完成'
 				}
 				if(status === 1){
 					return '交易完成'
@@ -74,12 +95,32 @@
 					return '待收货'
 				}
 			}
+		},
+		watch:{
+			statuType(val){
+				this.getOrderList()
+			}
 		}
 	}
 </script>
 
 <style lang="scss" scoped>
 	.wrap{
+		.status-wrap{
+			display: flex;
+			.statu{
+				margin: 0 30upx;
+				padding: 20upx 0;
+				flex: 1;
+				text-align: center;
+				font-size: 28upx;
+				border-bottom: solid 2upx transparent;
+				&.active{
+					color: #f47925;
+					border-color: #f47925;
+				}
+			}
+		}
 		.each-order{
 			margin: 20upx;
 			padding: 20upx;
