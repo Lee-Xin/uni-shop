@@ -22,54 +22,42 @@
 			</view>
 		</view>
 		<!-- VIP banner -->
-		<!-- <view class="VIP">
+		<view class="VIP">
 			<view class="img">
 				<image src="../../static/img/VIP.png"></image>
 			</view>
 			<view class="title">新人红包</view>
 			<view class="tis">点击领取</view>
-		</view> -->
-		<!-- 订单-余额 -->
-		<!-- <view class="order">
+		</view>
+		<!-- 订单 -->
+		<view class="order">
+			<view class="tab-header">
+				<view class="title">
+					我的订单
+				</view>
+				<view @tap="toOrderList(-1)" class="handle">
+					<view>
+						查看全部订单
+					</view>
+					<view class="icon xiangyou"></view>
+				</view>
+			</view>
 			<view class="list">
-				<view class="box" v-for="(row,index) in orderList" :key="index" @tap="toOrderList(index)">
+				<view class="box" v-for="(row,index) in orderList" :key="index" @tap="toOrderList(row.type)">
 					<view class="img">
 						<view class="icon" :class="row.icon"></view>
 					</view>
 					<view class="text">{{row.text}}</view>
 				</view>
 			</view>
-			<view class="balance-info">
-				<view class="left">
-					<view class="box">
-						<view class="num">{{user.integral}}</view>
-						<view class="text">积分</view>
-					</view>
-					<view class="box">
-						<view class="num">{{user.envelope}}</view>
-						<view class="text">佣金</view>
-					</view>
-					<view class="box">
-						<view class="num">{{user.balance}}</view>
-						<view class="text">余额</view>
-					</view>
-				</view>
-				<view class="right">
-					<view class="box">
-						<view class="img">
-							<view class="icon chongzhi"></view>
-						</view>
-						<view class="text">充值</view>
-					</view>
-				</view>
-			</view>
-		</view> -->
-		<view @tap="toOrder">
-			我的订单
 		</view>
 		<!-- 工具栏 -->
 		<view class="toolbar">
-			<view class="title">工具栏</view>
+			<view class="tab-header">
+				<view class="title">
+					工具栏
+				</view>
+			</view>
 			<view class="list">
 				<view class="box" @tap="tapTool(row)" v-for="(row,index) in mytoolbarList" :key="index">
 					<view class="img">
@@ -97,11 +85,11 @@
 				assetsHost: assetsHost,
 				// 订单类型
 				orderList:[
-					{text:'待付款',icon:"fukuan"},
-					{text:'待发货',icon:"fahuo"},
-					{text:'待收货',icon:"shouhuo"},
-					{text:'待评价',icon:"pingjia"},
-					{text:'退换货',icon:"tuihuo"}
+					// {text:'待付款',icon:"fukuan"},
+					{text:'待发货',icon:"fahuo", type: 0},
+					{text:'待收货',icon:"shouhuo", type: 1},
+					{text:'待评价',icon:"pingjia", type: 2},
+					{text:'退换货',icon:"tuihuo", type: 3}
 				],
 				// 工具栏列表
 				mytoolbarList:[
@@ -161,8 +149,8 @@
 					url:'../msg/msg'
 				})
 			},
-			toOrderList(index){
-				uni.navigateTo({url:'../user/order_list/order_list?tbIndex='+index}) 
+			toOrderList(type){
+				uni.navigateTo({url:'/pages/order/order-list?tabCode='+type}) 
 			},
 			toSetting(){
 				uni.navigateTo({
@@ -180,11 +168,6 @@
 					url:'../login/login'
 				})
 				this.isfirst = false;
-			},
-			toOrder(){
-				uni.navigateTo({
-					url: '/pages/order/order-list'
-				})
 			},
 			isLogin(){
 				//实际应用中,用户登录状态应该用token等方法去维持登录状态.
@@ -350,18 +333,15 @@
 		}
 	}
 	.order{
-		width: 84%;
-		margin: 30upx 4% 30upx 4%;
-		padding: 30upx 4% 20upx 4%;
+		margin: 30upx;
 		background-color: #fff;
 		box-shadow: 0upx 0upx 25upx rgba(0,0,0,0.1);
 		border-radius: 15upx;
 		.list{
 			display: flex;
-			border-bottom: solid 1upx #17e6a1;
-			padding-bottom: 10upx;
+			padding: 30upx 10upx;
 			.box{
-				width: 20%;
+				flex: 1;
 				.img{
 					width: 100%;
 					display: flex;
@@ -434,6 +414,27 @@
 			}
 		}
 	}
+	.tab-header{
+		padding: 20upx;
+		display: flex;
+		font-size: 30upx;
+		line-height: 1;
+		border-bottom: solid 2upx #eeeeee;
+		.title{
+			flex: 1;
+			font-weight: 600;
+		}
+		.handle{
+			display: flex;
+			align-items: center;
+			color: #999999;
+			font-size: 26upx;
+			line-height: 1;
+			.icon{
+				font-size: 26upx;
+			}
+		}
+	}
 	.VIP{
 		width: 84%;
 		margin: -65upx auto 20upx auto;
@@ -466,26 +467,16 @@
 		}
 	}
 	.toolbar{
-		width: 92%;
-		margin: 30upx 4% 30upx 4%;
-		padding: 0 0 20upx 0;
+		margin: 30upx;
 		background-color: #fff;
 		box-shadow: 0upx 0upx 25upx rgba(0,0,0,0.1);
 		border-radius: 15upx;
-		.title{
-			padding-top: 10upx;
-			margin: 0 0 10upx 3%;
-			font-size: 30upx;
-			height: 80upx;
-			display: flex;
-			align-items: center;
-		}
 		.list{
 			display: flex;
 			flex-wrap: wrap;
 			.box{
 				width: 25%;
-				margin-bottom: 30upx;
+				padding: 20upx 0;
 				.img{
 					width: 23vw;
 					height: 10.5vw;

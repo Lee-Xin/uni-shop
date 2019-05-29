@@ -1,7 +1,7 @@
 <template>
 	<view class="wrap">
 		<view class="status-wrap">
-			<view class="statu" :class="{active: statuType === statu.type}" @tap="statuType = statu.type" v-for="(statu,i) in statuEnum" :key="i">
+			<view class="statu" :class="{active: parseInt(statuType) === statu.type}" @tap="statuType = statu.type" v-for="(statu,i) in statuEnum" :key="i">
 				{{statu.name}}
 			</view>
 		</view>
@@ -36,20 +36,35 @@
 				</view>
 			</view>
 		</view>
+		<view v-show="orderList.length === 0" class="empty-block">
+			<img width="82" height="82" src="/static/img/empty.png">
+			<view class="tip">
+				您还没有相关的订单
+			</view>
+			<view class="sub-tip">
+				可以去看看有哪些想买的
+			</view>
+			<view @tap="toHome" class="empty-btn">
+				随便逛逛
+			</view>
+			<recommend :cates="[1,2,3]"></recommend>
+		</view>
 	</view>
 </template>
 
 <script>
 	import httpApi from '@/common/httpApi.js'
 	import config from '@/common/config.js'
+	import Recommend from '@/components/recommend.vue'
 	let assetsHost = config.domain.assetsHost
 	export default {
 		name: 'orderList',
+		components: {Recommend},
 		data(){
 			return {
 				orderList: [],
 				assetsHost: assetsHost,
-				statuType: -1,
+				statuType: null,
 				statuEnum: [
 					{
 						type: -1,
@@ -62,23 +77,31 @@
 					{
 						type: 1,
 						name: '待收货'
+					},
+					{
+						type: 2,
+						name: '待评价'
+					},
+					{
+						type: 3,
+						name: '退换货'
 					}
 				]
 			}
 		},
-		onShow(){
-			this.statuType = -1
-			this.getOrderList()
+		onLoad(option){
+			this.statuType = option.tabCode || -1
 		},
 		methods: {
 			getOrderList(){
 				httpApi.orderController.orderList({statu: this.statuType}).then(res => {
-					console.log(res);
 					if(res.success){
 						this.orderList = res.data
 					}
 				}).catch(e => {
-					console.log(e);
+					if(e.callback){
+						e.callback()
+					}
 				})
 			},
 			orderStatus(status){
@@ -94,6 +117,11 @@
 				if(status === 3){
 					return '待收货'
 				}
+			},
+			toHome(){
+				uni.switchTab({
+					url: '/pages/tabBar/home'
+				})
 			}
 		},
 		watch:{
@@ -106,8 +134,17 @@
 
 <style lang="scss" scoped>
 	.wrap{
+		padding-top: 80upx;
+		min-height: 100vh;
+		background-color: #f5f5f5;
+		box-sizing: border-box;
 		.status-wrap{
+			position: fixed;
 			display: flex;
+			width: 100%;
+			top: 0;
+			left: 0;
+			background-color: #ffffff;
 			.statu{
 				margin: 0 30upx;
 				padding: 20upx 0;
@@ -126,6 +163,7 @@
 			padding: 20upx;
 			border-radius: 14upx;
 			box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+			background-color: #ffffff;
 			.order-header{
 				display: flex;
 				font-size: 24upx;
@@ -197,6 +235,31 @@
 					font-size: 26upx;
 					margin: 20upx 0;
 				}
+			}
+		}
+		.empty-block{
+			padding-top: 180upx;
+			text-align: center;
+			.tip{
+				 margin: 12upx 0;
+				color: #333333;
+				font-size: 32upx;
+			}
+			.sub-tip{
+				color: #999999;
+				font-size: 24upx;
+			}
+			.empty-btn{
+				display: inline-block;
+				font-size: 26upx;
+				line-height: 64upx;
+				padding: 0 46upx;
+				height: 64upx;
+				color: #ffffff;
+				background-image: -webkit-linear-gradient(left, #fd9126, #ff5000);
+				background-image: linear-gradient(to right, #fd9126, #ff5000);
+				border-radius: 32upx;
+				margin-top: 70upx;
 			}
 		}
 	}
