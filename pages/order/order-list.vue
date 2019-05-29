@@ -5,7 +5,7 @@
 				{{statu.name}}
 			</view>
 		</view>
-		<view class="each-order" v-for="(order,i) in orderList" :key="i">
+		<view @tap="toDetail(order.orderNo)" class="each-order" v-for="(order,i) in orderList" :key="i">
 			<view class="order-header">
 				<view class="brand">
 					厂家品牌：青岛欧派
@@ -106,17 +106,31 @@
 			},
 			orderStatus(status){
 				if(status === 0){
-					return '未完成'
+					return '待发货'
 				}
 				if(status === 1){
-					return '交易完成'
-				}
-				if(status === 2){
-					return '交易关闭'
-				}
-				if(status === 3){
 					return '待收货'
 				}
+				if(status === 2){
+					return '待评价'
+				}
+				if(status === 3){
+					return '退换货'
+				}
+			},
+			toDetail(orderNo){
+				if(!orderNo){
+					uni.showToast({
+						title: '缺少订单编号',
+						mask: false,
+						duration: 1500,
+						icon:'none'
+					});
+					return
+				}
+				uni.navigateTo({
+					url: '/pages/order/order?orderNo='+orderNo
+				});
 			},
 			toHome(){
 				uni.switchTab({

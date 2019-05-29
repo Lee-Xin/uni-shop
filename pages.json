@@ -191,6 +191,15 @@
             	"backgroundColorTop":"#f3f3f3",
             	"backgroundColorBottom":"#ffffff"
             }
+        },
+		{
+            "path" : "pages/order/order",
+            "style" : {
+            	"navigationBarTitleText":"订单详情",
+            	"navigationBarBackgroundColor":"#ffffff",
+            	"backgroundColorTop":"#f3f3f3",
+            	"backgroundColorBottom":"#ffffff"
+            }
         }
 		
     ],

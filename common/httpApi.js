@@ -78,6 +78,9 @@ export default {
 		},
 		orderList(param){
 			return http.get(domain.requestHost + '/orderList', param)
+		},
+		getOrderDetail(param){
+			return http.get(domain.requestHost + '/orderDetail', param)
 		}
 	},
 	userController: {
