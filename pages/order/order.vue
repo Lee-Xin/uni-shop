@@ -2,10 +2,10 @@
 	<view class="wrap">
 		<view class="status">
 			<view class="text">
-				{{orderDetail.status | statusText}}
+				{{orderDetail.orderDes.status | statusText}}
 			</view>
 			<view class="img">
-				<img :src="`/static/img/status${orderDetail.status}.webp`">
+				<img :src="`/static/img/status${orderDetail.orderDes.status}.webp`">
 			</view>
 		</view>
 		<view class="each-order">
@@ -31,8 +31,49 @@
 						</view>
 					</view>
 				</view>
-				<view class="sum">
-					合计：¥{{orderDetail.total}}
+			</view>
+			<view class="order-info">
+				<view class="each-line">
+					<view class="title">
+						运费
+					</view>
+					<view>
+						¥ {{orderDetail.orderDes.deliver | toFix(2)}}
+					</view>
+				</view>
+				<view class="each-line">
+					<view class="title">
+						实付款（含运费）
+					</view>
+					<view class="sum">
+						¥ {{orderDetail.orderDes.total | toFix(2)}}
+					</view>
+				</view>
+			</view>
+		</view>
+		<view class="order-detail">
+			<view class="each-line">
+				<view class="title">
+					订单编号
+				</view>
+				<view>
+					{{orderDetail.orderDes.orderNo}}
+				</view>
+			</view>
+			<view class="each-line">
+				<view class="title">
+					创建时间
+				</view>
+				<view>
+					{{dateFormat(orderDetail.orderDes.time * 1000, 'YYYY-MM-DD HH:mm:ss')}}
+				</view>
+			</view>
+			<view class="each-line">
+				<view class="title">
+					订单状态
+				</view>
+				<view>
+					{{orderDetail.orderDes.status | statusText}}
 				</view>
 			</view>
 		</view>
@@ -42,6 +83,7 @@
 <script>
 	import httpApi from '@/common/httpApi.js'
 	import config from '@/common/config.js'
+	import {dateFormat} from '@/common/lib/commonFunc.js'
 	let assetsHost = config.domain.assetsHost
 	export default {
 		name: 'OrderDetail',
@@ -60,12 +102,22 @@
 					return '退换货'
 				}
 				return '待发货'
+			},
+			toFix(val, arg){
+				if(val !== undefined){
+					return val.toFixed(arg)
+				}
+				return ''
 			}
 		},
 		data(){
 			return {
 				assetsHost: assetsHost,
-				orderDetail: {}
+				dateFormat: dateFormat,
+				orderDetail: {
+					orderDes: {},
+					orderInfo: {}
+				}
 			}
 		},
 		onLoad(option){
@@ -96,7 +148,7 @@
 
 <style scoped lang="scss">
 	.wrap{
-		min-height: 100vh;
+		color: #333333;
 		background-color: #f2f2f2;
 		.status{
 			display: flex;
@@ -121,7 +173,7 @@
 			background-color: #ffffff;
 			.order-header{
 				display: flex;
-				font-size: 24upx;
+				font-size: 26upx;
 				padding: 10upx;
 				.brand{
 					flex: 1;
@@ -185,10 +237,35 @@
 						}
 					}
 				}
-				.sum{
-					text-align: right;
-					font-size: 26upx;
+				
+			}
+			.order-info{
+				.each-line{
 					margin: 20upx 0;
+					display: flex;
+					align-items: center;
+					font-size: 28upx;
+					.title{
+						flex: 1;
+					}
+					.sum{
+						text-align: right;
+						font-size: 34upx;
+						color: #f06c7a;
+					}
+				}
+			}
+		}
+		.order-detail{
+			padding: 20upx;
+			background-color: #ffffff;
+			font-size: 26upx;
+			.each-line{
+				margin: 10upx 0;
+				display: flex;
+				align-items: center;
+				.title{
+					flex: 1;
 				}
 			}
 		}
