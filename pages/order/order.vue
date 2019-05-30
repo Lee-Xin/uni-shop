@@ -43,7 +43,7 @@
 				</view>
 				<view class="each-line">
 					<view class="title">
-						实付款（含运费）
+						订单总额（含运费）
 					</view>
 					<view class="sum">
 						¥ {{orderDetail.orderDes.total | toFix(2)}}
@@ -74,6 +74,14 @@
 				</view>
 				<view>
 					{{orderDetail.orderDes.status | statusText}}
+				</view>
+			</view>
+			<view class="each-line">
+				<view class="title">
+					支付状态
+				</view>
+				<view>
+					{{orderDetail.orderDes.payStatus | payStatus}} {{+orderDetail.orderDes.payAmount > 0 ? `¥${orderDetail.orderDes.payAmount}` : ''}}
 				</view>
 			</view>
 		</view>
@@ -108,6 +116,17 @@
 					return val.toFixed(arg)
 				}
 				return ''
+			},
+			payStatus(val){
+				if(val === 0){
+					return '未支付'
+				}
+				if(val === 1){
+					return '支付全款'
+				}
+				if(val === 2){
+					return '支付定金'
+				}
 			}
 		},
 		data(){
