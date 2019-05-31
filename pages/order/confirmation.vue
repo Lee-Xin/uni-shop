@@ -1,7 +1,9 @@
 <template>
 	<view class="wrap">
-		<addr-label class="addr-label" v-if="addr" :addr="addr"></addr-label>
-		<view v-else @tap="addAddr" class="add-addr">添加收货地址</view>
+		<view v-if="addr" @tap="chooseAddr">
+			<addr-label class="addr-label" :addr="addr"></addr-label>
+		</view>
+		<view v-else @tap="chooseAddr" class="add-addr">添加收货地址</view>
 		<view class="goods-list">
 			<view class="brand">
 				厂家品牌：青岛欧派
@@ -109,7 +111,7 @@
 						count: t.count
 					})
 				})
-				httpApi.orderController.newOrder({goods: paramGoods, remark: this.remark}).then(res => {
+				httpApi.orderController.newOrder({goods: paramGoods, remark: this.remark, addressId: this.addr.id}).then(res => {
 					if(res.success){
 						uni.navigateTo({
 							url: '/pages/order/order-list'
@@ -132,6 +134,13 @@
 				})
 			},
 			getAddr(){
+				// 有限获取store中的选中地址
+				let choosenAddr = this.$store.getters.choosenAddr
+				if(choosenAddr){
+					this.addr = choosenAddr
+					this.$store.dispatch('setChoosenAddr', null)
+					return
+				}
 				httpApi.userController.getAddr().then(res => {
 					if(res.success){
 						if(res.data.length > 0){
@@ -155,9 +164,9 @@
 					console.log(e);
 				})
 			},
-			addAddr(){
+			chooseAddr(){
 				uni.navigateTo({
-					url: '/pages/user/address/edit'
+					url: '/pages/user/address/address?choose=true&backUrl=' + encodeURIComponent('/pages/order/confirmation?spuInfo='+this.spuInfo)
 				});
 			},
 			async getSpus(){
@@ -188,7 +197,7 @@
 		}
 		.add-addr{
 			padding: 20upx;
-			margin: 20upx;
+			margin: 20upx 30upx;
 			box-shadow: 0px 4upx 20upx rgba(0, 0, 0, 0.1);
 			font-size: 32upx;
 			text-align: center;

@@ -65,7 +65,7 @@
 					创建时间
 				</view>
 				<view>
-					{{dateFormat(orderDetail.orderDes.time * 1000, 'YYYY-MM-DD HH:mm:ss')}}
+					{{dateFormat(orderDetail.orderDes.time, 'YYYY-MM-DD HH:mm:ss')}}
 				</view>
 			</view>
 			<view class="each-line">

@@ -1,16 +1,16 @@
 <template>
 	<view class="wrap">
-		<view @tap="editAddr" class="add">
+		<view @tap="addAddr" class="add">
 			添加新地址
 		</view>
-		<view @tap="editAddr({addressId: addr.id})" class="each-addr" :class="{'manageOn': showManage}" v-for="(addr,i) in addrList" :key="i">
+		<view @tap="clickAddr(addr)" class="each-addr" :class="{'manageOn': showManage}" v-for="(addr,i) in addrList" :key="i">
 			<view class="checkbox" :class="{on: addr.selected}" @tap.stop="select(i)">
 				<view class="inner"></view>
 			</view>
 			<addr-label :addr="addr"></addr-label>
 		</view>
 		
-		<view v-if="addrList.length > 0" class="handles">
+		<view v-if="addrList.length > 0 && !isChoose" class="handles">
 			<view @tap="showManage=!showManage">
 				{{showManage ? '完成' : '管理'}}
 			</view>
@@ -34,7 +34,9 @@
 		data() {
 			return {
 				addrList: [],
-				showManage: false
+				showManage: false,
+				isChoose: false,
+				backUrl: ''
 			};
 		},
 		computed:{
@@ -48,6 +50,17 @@
 		},
 		onShow(){
 			this.getAddr()
+		},
+		onLoad(option){
+			if(option.choose){
+				this.isChoose = true
+				uni.setNavigationBarTitle({
+					title: '选择地址'
+				})
+			}
+			if(option.backUrl){
+				this.backUrl = option.backUrl
+			}
 		},
 		methods: {
 			async getAddr(){
@@ -98,10 +111,31 @@
 					});
 				}
 			},
-			editAddr({addressId}){
+			clickAddr(address){
+				if(!this.isChoose){
+					uni.navigateTo({
+						url: `/pages/user/address/edit${address ? '?addressId=' + address.id : ''}`
+					});
+				} else {
+					this.$store.dispatch('setChoosenAddr', address)
+					if(this.backUrl){
+						uni.navigateTo({
+							url: this.backUrl,
+							fail() {
+								uni.switchTab({
+									url: '/pages/tabBar/home'
+								})
+							}
+						});
+					} else {
+						uni.navigateBack()
+					}
+				}
+			},
+			addAddr(){
 				uni.navigateTo({
-					url: `/pages/user/address/edit${addressId ? '?addressId=' + addressId : ''}`
-				});
+					url: '/pages/user/address/edit'
+				})
 			},
 			async delAddr(){
 				let selected = this.addrList.filter(t => t.selected)
