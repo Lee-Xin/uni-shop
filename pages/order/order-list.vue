@@ -47,7 +47,7 @@
 			<view @tap="toHome" class="empty-btn">
 				随便逛逛
 			</view>
-			<recommend :cates="[1,2,3]"></recommend>
+			<recommend v-if="showRecommend" :cates="[1,2,3]"></recommend>
 		</view>
 	</view>
 </template>
@@ -86,7 +86,8 @@
 						type: 3,
 						name: '退换货'
 					}
-				]
+				],
+				showRecommend: false
 			}
 		},
 		onLoad(option){
@@ -96,6 +97,9 @@
 			getOrderList(){
 				httpApi.orderController.orderList({statu: this.statuType}).then(res => {
 					if(res.success){
+						if(res.data.length === 0){
+							this.showRecommend = true
+						}
 						this.orderList = res.data
 					}
 				}).catch(e => {
