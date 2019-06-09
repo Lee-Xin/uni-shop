@@ -2,7 +2,7 @@
 	<view class="swiper-box">
 		<swiper circular="true" autoplay="true" @change="swiperChange">
 			<swiper-item v-for="swiper in swiperList" :key="swiper.id">
-				<img :src="assetsHost+swiper.imgpath" @tap="$emit('clickFn',swiper)"/>
+				<image :src="assetsHost+swiper.imgpath" @tap="$emit('clickFn',swiper)" mode="aspectFill"></image>
 			</swiper-item>
 		</swiper>
 		<view class="indicator">

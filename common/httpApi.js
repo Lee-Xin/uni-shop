@@ -98,6 +98,9 @@ export default {
 		},
 		delAddr(param){
 			return http.post(domain.requestHost + '/delAddr', param)
+		},
+		getTickets(){
+			return http.get(domain.requestHost + '/getTickets')
 		}
 	}
 }

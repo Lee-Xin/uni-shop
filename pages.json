@@ -202,6 +202,15 @@
             }
         }
 		
+        ,{
+            "path" : "pages/user/tickets/tickets",
+            "style" : {
+            	"navigationBarTitleText":"优惠券",
+            	"navigationBarBackgroundColor":"#ffffff",
+            	"backgroundColorTop":"#f3f3f3",
+            	"backgroundColorBottom":"#ffffff"
+            }
+        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
