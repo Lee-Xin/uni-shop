@@ -63,4 +63,12 @@
         },
         "permission" : {}
     }
+//     "h5" : {
+//         "title" : "欧派团购",
+//         "domain" : "www.oupail.cn/oupai",
+//         "router": {
+//             "mode": "history",
+//             "base": "/oupai/"
+//         }
+//     }
 }

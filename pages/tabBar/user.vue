@@ -97,7 +97,10 @@
 						type: 'navigator',
 						url: '/pages/goods/goods-favorite'
 					}},
-					{text:'优惠券',img:'../../static/img/user/quan.png'},
+					{text:'优惠券',img:'../../static/img/user/quan.png', link: {
+						type: 'navigator',
+						url: '/pages/user/tickets/tickets'
+					}},
 					{text:'新客豪礼',img:'../../static/img/user/renw.png'},
 					{text:'领红包',img:'../../static/img/user/momey.png'},
 					
