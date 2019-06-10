@@ -9,7 +9,7 @@
 		<!-- 商品列表 -->
 		<view class="goods-list">
 			<view class="tis" v-if="goodsList.length==0">购物车是空的哦~</view>
-			<view v-esle-if="showGoodList" class="row" v-for="(row,index) in goodsList" :key="index" >
+			<view v-else-if="showGoodList" class="row" v-for="(row,index) in goodsList" :key="index" >
 				<view class="goods-wrap">
 					<!-- 商品 -->
 					<view class="carrier">
