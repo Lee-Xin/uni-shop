@@ -387,6 +387,9 @@ page{position: relative;}
 	width: 100%;
 	display: flex;
 	justify-content: center;
+	swiper-images{
+		width: 100%;
+	}
 }
 
 .category-list {

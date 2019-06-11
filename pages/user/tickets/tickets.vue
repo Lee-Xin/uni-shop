@@ -20,7 +20,7 @@
 						{{ticket.name}}
 					</view>
 					<view>
-						{{ticket.cate_id}}
+						{{ticket.cate_id}} 
 					</view>
 					<view>
 						{{dateFormat(ticket.begin_time, 'YYYY.MM.DD')}}-{{dateFormat(ticket.end_time, 'YYYY.MM.DD')}}
@@ -37,7 +37,7 @@
 	export default {
 		data() {
 			return {
-				tickets: null,
+				tickets: [],
 				dateFormat: dateFormat
 			};
 		},
