@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<view class="each-ticket" v-if="tickets" v-for="(ticket, i) in tickets" :key="'ticket'+i">
+		<view class="each-ticket" v-if="tickets" v-for="(ticket, i) in tickets" :key="i">
 			<view class="ticket-wrap">
 				<view class="base-info">
 					<view class="price">
