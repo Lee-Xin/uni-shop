@@ -76,6 +76,7 @@
 		
 	}
 	.input{
+		display: inline-block;
 		width: 60upx;
 		height: 60upx;
 		margin: 0 10upx;
@@ -91,6 +92,7 @@
 		}
 	}
 	.sub ,.add{
+		display: inline-block;
 		width: 45upx;
 		height: 45upx;
 		background-color: #f3f3f3;

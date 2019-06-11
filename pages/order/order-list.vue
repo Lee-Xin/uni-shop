@@ -1,7 +1,7 @@
 <template>
 	<view class="wrap">
 		<view class="status-wrap">
-			<view class="statu" v-for="(statu,i) in statuEnum" :class="{active: parseInt(statuType) === statu.type}" @tap="checkStatu(statu)" :key="i">
+			<view class="statu" v-for="(statu,i) in statuEnum" :class="{'active': statuType - statu.type == 0}" @tap="checkStatu(statu)" :key="i">
 				{{statu.name}}
 			</view>
 		</view>

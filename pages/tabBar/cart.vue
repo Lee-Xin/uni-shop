@@ -9,7 +9,7 @@
 		<!-- 商品列表 -->
 		<view class="goods-list">
 			<view class="tis" v-if="goodsList.length==0">购物车是空的哦~</view>
-			<view v-else-if="showGoodList" class="row" v-for="(row,index) in goodsList" :key="index" >
+			<view class="row" v-for="(row,index) in goodsList" :key="index" >
 				<view class="goods-wrap">
 					<!-- 商品 -->
 					<view class="carrier">
@@ -80,7 +80,6 @@
 		components: {CartCount, Recommend},
 		data() {
 			return {
-				showGoodList: true,
 				headerPosition:"fixed",
 				headerTop:null,
 				statusTop:null,
@@ -188,12 +187,6 @@
 					this.activedGoodsList = res.data.allSpu
 					this.allSpuInfo = res.data.allSpuInfo
 					this.computeGoodsList()
-					
-					// 触发视图更新
-					this.showGoodList = false
-					this.$nextTick(() => {
-						this.showGoodList = true
-					})
 				}
 			},
 			async countChange(param){

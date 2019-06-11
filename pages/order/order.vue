@@ -5,7 +5,7 @@
 				{{orderDetail.orderDes.status | statusText}}
 			</view>
 			<view class="img">
-				<img :src="`/static/img/status${orderDetail.orderDes.status}.webp`">
+				<img :src="'/static/img/status'+orderDetail.orderDes.status+'.webp'">
 			</view>
 		</view>
 		<view class="each-order">
@@ -81,7 +81,7 @@
 					支付状态
 				</view>
 				<view>
-					{{orderDetail.orderDes.payStatus | payStatus}} {{orderDetail.orderDes.payAmount > 0 ? `¥${orderDetail.orderDes.payAmount}` : ''}}
+					{{orderDetail.orderDes.payStatus | payStatus}} {{orderDetail.orderDes.payAmount > 0 ? '¥'+orderDetail.orderDes.payAmount : ''}}
 				</view>
 			</view>
 		</view>
