@@ -81,7 +81,7 @@
 					支付状态
 				</view>
 				<view>
-					{{orderDetail.orderDes.payStatus | payStatus}} {{+orderDetail.orderDes.payAmount > 0 ? `¥${orderDetail.orderDes.payAmount}` : ''}}
+					{{orderDetail.orderDes.payStatus | payStatus}} {{orderDetail.orderDes.payAmount > 0 ? `¥${orderDetail.orderDes.payAmount}` : ''}}
 				</view>
 			</view>
 		</view>
