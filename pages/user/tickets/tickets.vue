@@ -20,10 +20,15 @@
 						{{ticket.name}}
 					</view>
 					<view>
-						{{ticket.cate_id}} 
+						{{ticket.cate_id === null ? '所有商品' : ticket.cate_name + '类'}} 
 					</view>
-					<view>
+					<view class="time">
 						{{dateFormat(ticket.begin_time, 'YYYY.MM.DD')}}-{{dateFormat(ticket.end_time, 'YYYY.MM.DD')}}
+					</view>
+				</view>
+				<view class="btn">
+					<view class="jump" @tap="toCate({cate_parent: ticket.cate_parent, cate_id: ticket.cate_id, cate_name: ticket.cate_name})">
+						去使用
 					</view>
 				</view>
 			</view>
@@ -55,6 +60,22 @@
 						e.callback()
 					}
 				})
+			},
+			toCate(cate){
+				let url = ''
+				let parent = cate.cate_parent
+				let id = cate.cate_id
+				if(parent === null || id === null){
+					uni.switchTab({
+						url: '/pages/tabBar/home'
+					})
+					return
+				}
+				parent === 0 && (url = '/pages/goods/goods-category?parentId=' + id + '&name=' + cate.cate_name) // 顶级分类
+				parent === 1 && (url = '/pages/goods/goods-list?cid=' + id + '&name=' + cate.cate_name) // 非顶级分类
+				uni.navigateTo({
+					url: url
+				});
 			}
 		}
 	}
@@ -66,6 +87,7 @@
 			display: flex;
 			align-items: center;
 			font-size: 26upx;
+			padding: 20upx;
 			.base-info{
 				padding: 20upx;
 				text-align: center;
@@ -79,6 +101,24 @@
 						font-size: 60upx;
 						font-weight: 600;
 					}
+				}
+			}
+			.text{
+				flex: 1;
+				line-height: 1.8;
+				.time{
+					font-size: 24upx;
+					color: #999999;
+				}
+			}
+			.btn{
+				padding: 10upx 20upx;
+				background-color: #f06c7a;
+				border-radius: 40upx;
+				color: #ffffff;
+				.jump{
+					line-height: 0;
+					line-height: 30upx;
 				}
 			}
 		}
