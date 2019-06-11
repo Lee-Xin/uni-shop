@@ -1,7 +1,7 @@
 <template>
 	<view class="wrap">
 		<view class="status-wrap">
-			<view class="statu" :class="{active: parseInt(statuType) === statu.type}" @tap="statuType = statu.type" v-for="(statu,i) in statuEnum" :key="i">
+			<view class="statu" v-for="(statu,i) in statuEnum" :class="{active: parseInt(statuType) === statu.type}" @tap="checkStatu(statu)" :key="i">
 				{{statu.name}}
 			</view>
 		</view>
@@ -37,7 +37,9 @@
 			</view>
 		</view>
 		<view v-show="orderList.length === 0" class="empty-block">
-			<img width="82" height="82" src="/static/img/empty.png">
+			<view class="img">
+				<image src="/static/img/empty.png" mode="aspectFit"></image>
+			</view>
 			<view class="tip">
 				您还没有相关的订单
 			</view>
@@ -62,7 +64,7 @@
 		components: {Recommend},
 		data(){
 			return {
-				orderList: [],
+				orderList: [{}],
 				assetsHost: assetsHost,
 				statuType: null,
 				statuEnum: [
@@ -140,6 +142,9 @@
 				uni.switchTab({
 					url: '/pages/tabBar/home'
 				})
+			},
+			checkStatu(statu){
+				this.statuType = statu.type
 			}
 		},
 		watch:{
@@ -253,6 +258,15 @@
 		.empty-block{
 			padding-top: 180upx;
 			text-align: center;
+			.img{
+				width: 160upx;
+				height: 160upx;
+				margin: 20upx auto;
+				image{
+					width: 100%;
+					height: 100%;
+				}
+			}
 			.tip{
 				 margin: 12upx 0;
 				color: #333333;
