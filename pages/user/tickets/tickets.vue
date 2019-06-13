@@ -62,19 +62,8 @@
 				})
 			},
 			toCate(cate){
-				let url = ''
-				let parent = cate.cate_parent
-				let id = cate.cate_id
-				if(parent === null || id === null){
-					uni.switchTab({
-						url: '/pages/tabBar/home'
-					})
-					return
-				}
-				parent === 0 && (url = '/pages/goods/goods-category?parentId=' + id + '&name=' + cate.cate_name) // 顶级分类
-				parent === 1 && (url = '/pages/goods/goods-list?cid=' + id + '&name=' + cate.cate_name) // 非顶级分类
 				uni.navigateTo({
-					url: url
+					url: '/pages/goods/goods-list?cid=' + cate.cate_id + '&name=' + cate.cate_name
 				});
 			}
 		}
