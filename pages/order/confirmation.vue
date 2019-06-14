@@ -5,33 +5,50 @@
 		</view>
 		<view v-else @tap="chooseAddr" class="add-addr">添加收货地址</view>
 		<view class="goods-list">
-			<view class="brand">
-				厂家品牌：青岛欧派
-			</view>
 			<view class="goods-wrap">
-				<view class="each-goods" v-for="(spu,i) in goodsList" :key="i">
-					<view class="img">
-						<img :src="assetsHost + spu.img">
+				<view class="each-group" v-for="(group, key) in allSpuInfoGrouped" :key="key">
+					<view class="goods-group-title">
+						{{group.cate_name}}
 					</view>
-					<view class="spu-info">
-						<view class="name">
-							{{spu.detail}}
+					<view class="each-goods" v-for="spu in group.spuList" :key="spu.pid">
+						<view class="img">
+							<img :src="assetsHost + spu.img">
 						</view>
-						<view class="actives">
-							<view class="each-active" v-for="(active, j) in spu.actives" :key="j">
-								{{active.des}}
+						<view class="spu-info">
+							<view class="name">
+								{{spu.detail}}
+							</view>
+							<view class="actives">
+								<view class="each-active" v-for="(active, j) in spu.actives" :key="j">
+									{{active.des}}
+								</view>
+							</view>
+							<view class="actived-info">
+								<view class="each-actived" v-for="(active, j) in spu.activedInfo" :key="j">
+									{{active}}
+								</view>
 							</view>
 						</view>
-						<view class="actived-info">
-							<view class="each-actived" v-for="(active, j) in spu.activedInfo" :key="j">
-								{{active}}
+						<view class="price">
+							¥{{spu.price}}
+							<view class="count">
+								× {{spu.count}}
 							</view>
 						</view>
 					</view>
-					<view class="price">
-						¥{{spu.price}}
-						<view class="count">
-							× {{spu.count}}
+					<view v-if="ticketsGrouped && ticketsGrouped[key]" class="tickets">
+						<view @tap="showChooseTicket = true; chooseTicketCate = key" class="cell">
+							<view>优惠券</view>
+							<view class="content"></view>
+							<view>{{group.checkedTickets || '可用'}}</view>
+							<view class="arrow"><view class="icon xiangyou"></view></view>
+						</view>
+					</view>
+					<view class="cate-sum">
+						小计： 
+						{{group.totalPrice}}
+						<view v-if="group.totalPrice !== group.prePrice" class="pre-price">
+							{{group.prePrice}}
 						</view>
 					</view>
 				</view>
@@ -53,7 +70,7 @@
 					<view class="count">
 						共{{allSpuInfo.count}}件
 					</view>
-					小计：
+					合计：
 					<view class="price">
 						¥{{allSpuInfo.price}}
 					</view>
@@ -72,16 +89,23 @@
 				<view class="btn" @tap="toPay">提交订单</view>
 			</view>
 		</view>
+		<popup :show="showChooseTicket" position="bottom" @hidePopup="showChooseTicket = false">
+			<view v-for="ticket in ticketsGrouped[chooseTicketCate]" :key="ticket.id">
+				<ticket :ticket="ticket" @handleClick="chooseTicket" clickText="使用"></ticket>
+			</view>
+		</popup>
 	</view>
 </template>
 
 <script>
+	import popup from '@dcloudio/uni-ui/lib/uni-popup/uni-popup.vue'
 	import AddrLabel from '@/components/addr-label.vue'
 	import httpApi from '@/common/httpApi.js'
 	import config from '@/common/config.js'
+	import ticket from '@/components/goods-related/ticket.vue'
 	let assetsHost = config.domain.assetsHost
 	export default {
-		components: {AddrLabel},
+		components: {AddrLabel, popup, ticket},
 		data() {
 			return {
 				addr: null,
@@ -91,7 +115,42 @@
 				allSpuInfo: {},
 				spuInfo: null,
 				assetsHost: assetsHost,
+				tickets: [], // 当前用户可用的优惠券
+				showChooseTicket: false,
+				chooseTicketCate: null
 			};
+		},
+		computed: {
+			ticketsGrouped(){
+				let ticketsGroup = {}
+				this.tickets.forEach(t => {
+					// 按照分类id，组合优惠券
+					if(!ticketsGroup.hasOwnProperty(t.categoryId)){
+						ticketsGroup[t.categoryId] = new Array()
+					}
+					ticketsGroup[t.categoryId].push(t)
+				})
+				return ticketsGroup
+			},
+			allSpuInfoGrouped(){
+				let spuGroup = {}
+				this.goodsList.forEach(g => {
+					// 按照分类id，组合商品
+					if(!spuGroup.hasOwnProperty(g.cateId)){
+						spuGroup[g.cateId] = {
+							spuList: [],
+							totalPrice: 0,
+							prePrice: 0,
+							cate_name: ''
+						}
+					}
+					spuGroup[g.cateId].cate_name = g.cateName
+					spuGroup[g.cateId].prePrice += g.count * g.price
+					spuGroup[g.cateId].totalPrice += g.activedPrice || (g.count * g.price)
+					spuGroup[g.cateId].spuList.push(g)
+				})
+				return spuGroup
+			}
 		},
 		onLoad(option){
 			if(option.spuInfo){
@@ -161,7 +220,9 @@
 						});
 					}
 				}).catch(e => {
-					console.log(e);
+					if(e.callback){
+						e.callback()
+					}
 				})
 			},
 			chooseAddr(){
@@ -183,7 +244,35 @@
 				if(res.success){
 					this.goodsList = res.data.allSpu
 					this.allSpuInfo = res.data.allSpuInfo
+					let spuBase = res.data.allSpu.map(spu => {
+						return {
+							pid: spu.pid,
+							price: spu.price,
+							count: spu.count,
+							cateId: spu.cateId,
+							activedPrice: spu.activedPrice
+						}
+					})
+					this.getTickets({spuArr: spuBase})
 				}
+			},
+			async getTickets({spuArr}){
+				if(!this.spuInfo){
+					uni.showToast({
+						title: '缺少商品信息参数',
+						mask: false,
+						duration: 1500,
+						icon: 'none'
+					});
+					return
+				}
+				let res = await httpApi.orderController.getTicketsBySpus({spuArr})
+				if(res.success){
+					this.tickets = res.data
+				}
+			},
+			chooseTicket(){
+				console.log(this.chooseTicketCate);
 			}
 		}
 	}
@@ -210,58 +299,75 @@
 				font-size: 28upx;
 			}
 			.goods-wrap{
-				.each-goods{
-					display: flex;
-					padding: 10upx;
-					font-size: 26upx;
-					.img{
-						width: 180upx;
-						height: 180upx;
-						font-size: 0;
-						img{
-							width: 100%;
-							height: 100%;
-						}
+				.each-group{
+					margin-bottom: 20upx;
+					padding-bottom: 20upx;
+					border-bottom: solid 2upx #ddd;
+					.goods-group-title{
+						font-size: 28upx;
 					}
-					.spu-info{
-						flex: 1;
-						padding: 10upx 20upx;
-						line-height: 1.3;
-						.actives{
-							.each-active{
-								display: inline-block;
-								margin: 10upx 10upx 10upx 0;
-								padding: 6upx 10upx;
-								color: #ffffff;
-								background-color: #f06c7a;
+					.each-goods{
+						display: flex;
+						padding: 10upx;
+						font-size: 26upx;
+						.img{
+							width: 180upx;
+							height: 180upx;
+							font-size: 0;
+							img{
+								width: 100%;
+								height: 100%;
 							}
 						}
-						.actived-info{
-							font-size: 24upx;
-							text-overflow: ellipsis;
-							color: #999;
+						.spu-info{
+							flex: 1;
+							padding: 10upx 20upx;
+							line-height: 1.3;
+							.actives{
+								.each-active{
+									display: inline-block;
+									margin: 10upx 10upx 10upx 0;
+									padding: 6upx 10upx;
+									color: #ffffff;
+									background-color: #f06c7a;
+								}
+							}
+							.actived-info{
+								font-size: 24upx;
+								text-overflow: ellipsis;
+								color: #999;
+							}
+						}
+						.price{
+							padding: 10upx 0;
+							width: 100upx;
+							text-align: right;
+							.count{
+								color: #999;
+							}
 						}
 					}
-					.price{
-						padding: 10upx 0;
-						width: 100upx;
+					.cate-sum{
+						font-size: 26upx;
 						text-align: right;
-						.count{
-							color: #999;
+						.pre-price{
+							display: inline-block;
+							margin-left: 10upx;
+							font-size: 26upx;
+							text-decoration: line-through;
+							color: #999999;
 						}
 					}
 				}
-				.ext-info{
-					.cell{
-						margin: 20upx 0;
-						display: flex;
-						align-items: center;
-						font-size: 28upx;
-						.content{
-							padding: 0 20upx;
-							flex: 1;
-							color: #999;
-						}
+				.cell{
+					margin: 20upx 0;
+					display: flex;
+					align-items: center;
+					font-size: 28upx;
+					.content{
+						padding: 0 20upx;
+						flex: 1;
+						color: #999;
 					}
 				}
 				.sum{

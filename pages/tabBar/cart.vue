@@ -282,6 +282,7 @@
 		display: flex;
 		align-items: center;
 		margin-right: 20upx;
+		width: fit-content;
 		.checkbox{
 			width: 35upx;
 			height: 35upx;
@@ -362,6 +363,9 @@
 			overflow: hidden;
 			z-index: 4;
 			border: 0;
+			.goods-wrap{
+				width: 100%;
+			}
 			.menu{
 				.icon{
 					color: #fff;

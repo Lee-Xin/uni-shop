@@ -81,6 +81,9 @@ export default {
 		},
 		getOrderDetail(param){
 			return http.get(domain.requestHost + '/orderDetail', param)
+		},
+		getTicketsBySpus(param){
+			return http.post(domain.requestHost + '/getTicketsBySpus', param)
 		}
 	},
 	userController: {
