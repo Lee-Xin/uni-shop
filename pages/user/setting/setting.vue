@@ -2,23 +2,25 @@
 	<view>
 		<view class="content">
 			<view class="list">
+				<view class="row" @tap="jump({type: 'navigateTo', url: '/pages/user/address/address'})">
+					<view class="title">收货地址管理</view>
+					<view class="right"><view class="tis">编辑</view><view class="icon jiantou"></view></view>
+				</view>
+			</view>
+			<view class="list">
 				<view class="row">
 					<view class="title">头像</view>
 					<view class="right"><view class="tis">
 					<image :src="assetsHost + user.avatar" mode="widthFix"></image>
 					</view><view class="icon jiantou"></view></view>
 				</view>
-				<view class="row">
+				<view class="row" @tap="showEdit = true; choosenItem = {key: 'username', value: user.username, label: '昵称'}">
 					<view class="title">昵称</view>
 					<view class="right"><view class="tis">{{user.username}}</view><view class="icon jiantou"></view></view>
 				</view>
 				<view class="row">
 					<view class="title">个性签名</view>
 					<view class="right"><view class="tis">{{user.signature}}</view><view class="icon jiantou"></view></view>
-				</view>
-				<view class="row">
-					<view class="title">收货地址</view>
-					<view class="right"><view class="tis"></view><view class="icon jiantou"></view></view>
 				</view>
 			</view>
 			<view class="list">
@@ -53,17 +55,34 @@
 				退出登录
 			</view>
 		</view>
+		<popup :show="showEdit" position="bottom" mode="insert" @hidePopup="updateInfo">
+			<view class="edit-body">
+				<label>
+					<view class="label-text">
+						{{choosenItem.label}}
+					</view>
+					<input type="text" v-model="choosenItem.value"/>
+				</label>
+			</view>
+		</popup>
 	</view>
 </template>
 
 <script>
 	import httpApi from '@/common/httpApi.js'
 	import config from '@/common/config.js'
+	import popup from '@dcloudio/uni-ui/lib/uni-popup/uni-popup.vue'
 	let assetsHost = config.domain.assetsHost
 	export default {
+		components: {popup},
 		data() {
 			return {
-				assetsHost: assetsHost
+				assetsHost: assetsHost,
+				showEdit: false,
+				choosenItem: {
+					key: '',
+					value: ''
+				}
 			};
 		},
 		computed: {
@@ -91,6 +110,24 @@
 						});
 					}
 				});
+			},
+			jump({type, url}){
+				try{
+					uni[type].call(this, {url: url})
+				} catch (e) {
+					if(type === 'navigateTo'){
+						uni.navigateTo({
+							url: url
+						});
+					} else if(type === ''){
+						uni.switchTab({
+							url: url
+						})
+					}
+				}
+			},
+			updateInfo(){
+				console.log(this.user[this.choosenItem.key]);
 			}
 		}
 	}
@@ -168,5 +205,24 @@ page{
 		}
 	}
 }
-
+.edit-body{
+	line-height: 28upx;
+	text-align: left;
+	font-size: 28upx;
+	padding: 20upx;
+	label{
+		display: flex;
+		align-items: center;
+		.label-text{
+			width: 140upx;
+		}
+		input{
+			flex: 1;
+			line-height: 1;
+			padding: 4upx 10upx;
+			color: #999;
+			border-bottom: solid 2upx #999;
+		}
+	}
+}
 </style>
