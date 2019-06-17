@@ -62,14 +62,23 @@
             "urlCheck" : true
         },
         "permission" : {},
-		"usingComponents":true
-    }
-//     "h5" : {
-//         "title" : "欧派团购",
-//         "domain" : "www.oupail.cn/oupai",
-//         "router": {
-//             "mode": "history",
-//             "base": "/oupai/"
-//         }
-//     }
+        "usingComponents" : true
+    },
+    // "h5" : {
+    //     "title" : "欧派团购",
+    //     "domain" : "www.oupail.cn/oupai",
+    //     "router" : {
+    //         "base" : "/oupai/"
+    //     }
+    // }
+	"h5" : {
+		"title" : "欧派团购",
+		"domain" : "www.oupail.cn/oupai",
+		"router": {
+			"mode": "hash",
+			"base": "/oupai/"
+		}
+	}
 }
+
+

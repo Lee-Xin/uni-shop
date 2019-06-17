@@ -1,10 +1,12 @@
 <template>
 	<!-- 搜索框 -->
 	<view class="input-box" @tap="toSearch">
-		<img src="/static/img/logo.png">
+		<view class="logo">
+			<image src="/static/img/logo.png"></image>
+		</view>
 		<view class="search-tip">
 			<view class="search">
-				<img src="/static/img/search.png">
+				<image src="/static/img/search.png"></image>
 			</view>
 			<view class="text">
 				{{searchTip}}
@@ -39,6 +41,16 @@
 	position: relative;
 	display: flex;
 	align-items: center;
+	.logo{
+		height: 52upx;
+		width: 180upx;
+		vertical-align: middle;
+		margin-left: 5upx;
+		image{
+			width: 100%;
+			height: 100%;
+		}
+	}
 	.search-tip{
 		position: relative;
 		margin-left: 10upx;
@@ -58,15 +70,15 @@
 			background-color: #dadada;
 		}
 		.search{
+			width: 26upx;
+			height: 26upx;
 			line-height: 26upx;
-			padding-bottom: 6upx;
 			display: inline-block;
 			vertical-align: middle;
 			margin-right: 10upx;
-			img{
-				height: 26upx;
-				width: 26upx;
-				vertical-align: middle;
+			image{
+				width: 100%;
+				height: 100%;
 			}
 		}
 		.text{
@@ -81,11 +93,6 @@
 		vertical-align: middle;
 		margin: 0 10upx 0 6upx;
 	}
-	img{
-		height: 52upx;
-		width: 180upx;
-		vertical-align: middle;
-		margin-left: 5upx;
-	}
+
 }
 </style>
