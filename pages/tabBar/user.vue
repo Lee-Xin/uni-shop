@@ -22,12 +22,19 @@
 			</view>
 		</view>
 		<!-- VIP banner -->
-		<view class="VIP">
+		<view v-if="isFresh" class="VIP">
 			<view class="img">
-				<image src="../../static/img/VIP.png"></image>
+				<image src="/static/img/VIP.png"></image>
 			</view>
-			<view class="title">新人红包</view>
+			<view class="title">新客豪礼</view>
 			<view class="tis">点击领取</view>
+		</view>
+		<view v-else class="VIP">
+			<view class="img">
+				<image src="/static/img/user/redbag.png"></image>
+			</view>
+			<view class="title">红包/抽奖</view>
+			<view class="tis">点击参与</view>
 		</view>
 		<!-- 订单 -->
 		<view class="order">
@@ -108,8 +115,8 @@
 						type: 'navigator',
 						url: '/pages/user/address/address'
 					}},
-					{text:'账户安全',img:'../../static/img/user/security.png'},
-					{text:'银行卡',img:'../../static/img/user/bank.png'},
+					/* {text:'账户安全',img:'../../static/img/user/security.png'},
+					{text:'银行卡',img:'../../static/img/user/bank.png'}, */
 					{text:'抽奖',img:'../../static/img/user/choujiang.png'},
 					// {text:'客服',img:'../../static/img/user/kefu.png'},
 					// {text:'签到',img:'../../static/img/user/mingxi.png'}
@@ -120,6 +127,14 @@
 		computed: {
 			user(){
 				return this.$store.getters.userInfo || {}
+			},
+			isFresh(){
+				if(this.user.moment){
+					let registerAge = new Date().getTime() - this.user.moment
+					console.log(registerAge);
+					return registerAge < 2592000000 // 30天
+				}
+				return true
 			}
 		},
 		//下拉刷新，需要自己在page.json文件中配置开启页面下拉刷新 "enablePullDownRefresh": true
@@ -451,6 +466,7 @@
 			flex-shrink: 0;
 			width: 60upx;
 			height: 60upx;
+			margin-right: 10upx;
 			image{
 				width: 60upx;
 				height: 60upx;
