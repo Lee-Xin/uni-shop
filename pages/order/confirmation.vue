@@ -40,7 +40,8 @@
 						<view @tap="showChooseTicket = true; chooseTicketCate = key" class="cell">
 							<view>优惠券</view>
 							<view class="content"></view>
-							<view>{{group.checkedTickets || '可用'}}</view>
+							<view v-if="group.ticket">{{group.ticket.name}}</view>
+							<view v-else>请选择</view>
 							<view class="arrow"><view class="icon xiangyou"></view></view>
 						</view>
 					</view>
@@ -91,7 +92,7 @@
 		</view>
 		<popup :show="showChooseTicket" position="bottom" @hidePopup="showChooseTicket = false">
 			<view v-for="ticket in ticketsGrouped[chooseTicketCate]" :key="ticket.id">
-				<ticket :ticket="ticket" @handleClick="chooseTicket" clickText="使用"></ticket>
+				<ticket :ticket="ticket" @handleClick="chooseTicket(ticket)" clickText="使用"></ticket>
 			</view>
 		</popup>
 	</view>
@@ -167,7 +168,8 @@
 				this.goodsList.forEach(t => {
 					paramGoods.push({
 						pid: t.pid,
-						count: t.count
+						count: t.count,
+						ticket: t.ticket.id
 					})
 				})
 				httpApi.orderController.newOrder({goods: paramGoods, remark: this.remark, addressId: this.addr.id}).then(res => {
@@ -276,8 +278,27 @@
 					this.tickets = res.data
 				}
 			},
-			chooseTicket(){
-				console.log(this.chooseTicketCate);
+			chooseTicket(ticket){
+				if(this.allSpuInfoGrouped[this.chooseTicketCate]){
+					if(this.allSpuInfoGrouped[this.chooseTicketCate].totalPrice < ticket.limit){
+						uni.showModal({
+							title: '系统提示',
+							content: '还差' + (ticket.limit - this.allSpuInfoGrouped[this.chooseTicketCate].totalPrice) + '元才可以使用，去凑单？',
+							cancelText: '取消',
+							confirmText: '确定',
+							success: res => {
+								if(res.confirm){
+									uni.navigateTo({
+										url: '/pages/goods/goods-list?cid=' + ticket.categoryId + '&name=' + this.allSpuInfoGrouped[this.chooseTicketCate].cate_name
+									});
+								}
+							}
+						});
+						return
+					}
+					this.allSpuInfoGrouped[this.chooseTicketCate].ticket = ticket
+					this.showChooseTicket = false
+				}
 			}
 		}
 	}
