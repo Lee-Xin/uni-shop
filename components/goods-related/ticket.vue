@@ -24,9 +24,9 @@
 				{{dateFormat(ticket.begin_time, 'YYYY.MM.DD')}}-{{dateFormat(ticket.end_time, 'YYYY.MM.DD')}}
 			</view>
 		</view>
-		<view class="btn">
-			<view class="jump" @tap="$emit('handleClick')">
-				{{clickText}}
+		<view class="btn" :class="{'disabled': !isBegin || isEnd}">
+			<view class="jump" @tap="tapTicket">
+				{{!isEnd && isBegin ? clickText : errorText}}
 			</view>
 		</view>
 	</view>
@@ -47,7 +47,39 @@
 		},
 		data(){
 			return {
-				dateFormat: dateFormat
+				dateFormat: dateFormat,
+				currentTs: new Date().getTime(),
+			}
+		},
+		computed: {
+			isBegin(){
+				if(this.ticket.begin_time < this.currentTs) return true
+				return false
+			},
+			isEnd(){
+				if(this.ticket.end_time < this.currentTs) return true
+				return false
+			},
+			errorText(){
+				if(this.isEnd){
+					return '已过期'
+				}
+				if(!this.isBegin){
+					return '未开始'
+				}
+				return '不可用'
+			}
+		},
+		methods: {
+			tapTicket(){
+				if(this.isBegin && !this.isEnd){
+					this.$emit('handleClick')
+					return
+				}
+				uni.showToast({
+					title: '该优惠券' + this.errorText,
+					icon: 'none'
+				});
 			}
 		}
 	}
@@ -87,6 +119,9 @@
 			background-color: #f06c7a;
 			border-radius: 40upx;
 			color: #ffffff;
+			&.disabled{
+				background-color: #999999;
+			}
 			.jump{
 				line-height: 0;
 				line-height: 30upx;
