@@ -241,7 +241,7 @@
 					return
 				}
 				let res = await httpApi.chooseCartSpu({spu_arr: this.spuInfo})
-				if(res.success){
+				if(res.success && res.data.allSpu.length > 0){
 					this.goodsList = res.data.allSpu
 					this.allSpuInfo = res.data.allSpuInfo
 					let spuBase = res.data.allSpu.map(spu => {
@@ -254,7 +254,12 @@
 						}
 					})
 					this.getTickets({spuArr: spuBase})
+					return
 				}
+				//其他情况则返回到购物车
+				uni.switchTab({
+					url: '/pages/tabBar/cart'
+				})
 			},
 			async getTickets({spuArr}){
 				if(!this.spuInfo){
