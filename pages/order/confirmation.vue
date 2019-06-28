@@ -246,16 +246,10 @@
 				if(res.success && res.data.allSpu.length > 0){
 					this.goodsList = res.data.allSpu
 					this.allSpuInfo = res.data.allSpuInfo
-					let spuBase = res.data.allSpu.map(spu => {
-						return {
-							pid: spu.pid,
-							price: spu.price,
-							count: spu.count,
-							cateId: spu.cateId,
-							activedPrice: spu.activedPrice
-						}
+					let cateArr = res.data.allSpu.map(spu => {
+						return spu.cateId
 					})
-					this.getTickets({spuArr: spuBase})
+					this.getTickets({cateArr: cateArr})
 					return
 				}
 				//其他情况则返回到购物车
@@ -263,7 +257,7 @@
 					url: '/pages/tabBar/cart'
 				})
 			},
-			async getTickets({spuArr}){
+			async getTickets({cateArr}){
 				if(!this.spuInfo){
 					uni.showToast({
 						title: '缺少商品信息参数',
@@ -273,17 +267,18 @@
 					});
 					return
 				}
-				let res = await httpApi.orderController.getTicketsBySpus({spuArr})
+				let res = await httpApi.orderController.getTicketsByCate({cateArr})
 				if(res.success){
 					this.tickets = res.data
 				}
 			},
 			chooseTicket(ticket){
+				// 当前操作的分类id。（根据该id可获取商品分组）
 				if(this.allSpuInfoGrouped[this.chooseTicketCate]){
 					if(this.allSpuInfoGrouped[this.chooseTicketCate].totalPrice < ticket.limit){
 						uni.showModal({
 							title: '系统提示',
-							content: '还差' + (ticket.limit - this.allSpuInfoGrouped[this.chooseTicketCate].totalPrice) + '元才可以使用，去凑单？',
+							content: '还差' + (ticket.limit - this.allSpuInfoGrouped[this.chooseTicketCate].totalPrice) + '元才可以使用，去凑单？', //注意是totalPrice，实付款
 							cancelText: '取消',
 							confirmText: '确定',
 							success: res => {
@@ -296,6 +291,7 @@
 						});
 						return
 					}
+					// 设置该分类下的优惠券
 					this.allSpuInfoGrouped[this.chooseTicketCate].ticket = ticket
 					this.showChooseTicket = false
 				}
