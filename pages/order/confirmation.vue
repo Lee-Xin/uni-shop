@@ -47,7 +47,7 @@
 					</view>
 					<view class="cate-sum">
 						小计： 
-						{{group.totalPrice}}
+						{{group.totalPrice - (group.ticket ? group.ticket.discount : 0)}}
 						<view v-if="group.totalPrice !== group.prePrice" class="pre-price">
 							{{group.prePrice}}
 						</view>
@@ -73,7 +73,7 @@
 					</view>
 					合计：
 					<view class="price">
-						¥{{allSpuInfo.price}}
+						¥{{allSpuInfo.price - totalTicketPrice}}
 					</view>
 					<view v-if="allSpuInfo.prePrice !== allSpuInfo.price" class="pre-price">
 						¥{{allSpuInfo.prePrice}}
@@ -86,7 +86,7 @@
 		</view>
 		<view class="footer">
 			<view class="settlement">
-				<view class="sum">合计:<view class="money">￥{{allSpuInfo.price}}</view></view>
+				<view class="sum">合计:<view class="money">￥{{allSpuInfo.price - totalTicketPrice}}</view></view>
 				<view class="btn" @tap="toPay">提交订单</view>
 			</view>
 		</view>
@@ -113,12 +113,15 @@
 				remark: '',
 				addrList: [], // 收货地址列表
 				goodsList: [],
-				allSpuInfo: {},
+				allSpuInfo: {
+					price: 0
+				},
 				spuInfo: null,
 				assetsHost: assetsHost,
 				tickets: [], // 当前用户可用的优惠券
 				showChooseTicket: false,
-				chooseTicketCate: null
+				chooseTicketCate: null,
+				choosenTickets: {}, // 存放选中的优惠券
 			};
 		},
 		computed: {
@@ -151,6 +154,13 @@
 					spuGroup[g.cateId].spuList.push(g)
 				})
 				return spuGroup
+			},
+			totalTicketPrice(){
+				let price = 0
+				for(let key in this.choosenTickets){
+					price += this.choosenTickets[key];
+				}
+				return price
 			}
 		},
 		onLoad(option){
@@ -169,10 +179,9 @@
 					paramGoods.push({
 						pid: t.pid,
 						count: t.count,
-						ticket: t.ticket.id
 					})
 				})
-				httpApi.orderController.newOrder({goods: paramGoods, remark: this.remark, addressId: this.addr.id}).then(res => {
+				httpApi.orderController.newOrder({goods: paramGoods, remark: this.remark, addressId: this.addr.id, tickets: this.choosenTickets}).then(res => {
 					if(res.success){
 						uni.navigateTo({
 							url: '/pages/order/order-list'
@@ -294,6 +303,10 @@
 					// 设置该分类下的优惠券
 					this.allSpuInfoGrouped[this.chooseTicketCate].ticket = ticket
 					this.showChooseTicket = false
+
+					// 存放选中的优惠券id，用于计算总价
+					delete this.choosenTickets[this.chooseTicketCate]
+					this.$set(this.choosenTickets, this.chooseTicketCate.toString(), ticket.discount)
 				}
 			}
 		}
