@@ -46,7 +46,7 @@
 						订单总额（含运费）
 					</view>
 					<view class="sum">
-						¥ {{orderDetail.orderDes.total | toFix(2)}}
+						¥ {{(orderDetail.orderDes.total - orderDetail.orderDes.ticketsDis) | toFix(2)}}
 					</view>
 				</view>
 			</view>
@@ -81,7 +81,7 @@
 					支付状态
 				</view>
 				<view>
-					{{orderDetail.orderDes.payStatus | payStatus}} {{orderDetail.orderDes.payAmount > 0 ? '¥'+orderDetail.orderDes.payAmount : ''}}
+					{{orderDetail.orderDes.payStatus | payStatus}}
 				</view>
 			</view>
 		</view>

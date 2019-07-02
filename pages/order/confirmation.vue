@@ -158,7 +158,7 @@
 			totalTicketPrice(){
 				let price = 0
 				for(let key in this.choosenTickets){
-					price += this.choosenTickets[key];
+					price += this.choosenTickets[key].discount;
 				}
 				return price
 			}
@@ -306,7 +306,7 @@
 
 					// 存放选中的优惠券id，用于计算总价
 					delete this.choosenTickets[this.chooseTicketCate]
-					this.$set(this.choosenTickets, this.chooseTicketCate.toString(), ticket.discount)
+					this.$set(this.choosenTickets, this.chooseTicketCate.toString(), {discount: ticket.discount, id: ticket.id})
 				}
 			}
 		}

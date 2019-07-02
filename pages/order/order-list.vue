@@ -32,7 +32,7 @@
 					</view>
 				</view>
 				<view class="sum">
-					合计：¥{{order.total}}
+					合计：¥{{order.total - order.ticketsDis}}
 				</view>
 			</view>
 		</view>
