@@ -103,6 +103,11 @@ export default {
 	getSimilarity(param){
 		return http.get(domain.requestHost + '/getSimilarity', param)
 	},
+	productController: {
+		productTickets(param){
+			return http.get(domain.requestHost + '/productTickets', param)
+		}
+	},
 	orderController:{
 		newOrder(param){
 			return http.post(domain.requestHost + '/newOrder', param)

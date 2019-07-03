@@ -114,12 +114,11 @@
 					<image :src="assetsHost+swiper" @tap="toSwiper(swiper)"></image>
 				</swiper-item>
 			</swiper>
-			<view class="indicator">{{currentSwiper+1}}/{{goodsData.images.length}}</view>
 		</view>
 		<!-- 标题 价格 -->
 		<view class="info-box goods-info">
 			<view class="price">
-				￥{{goodsData.price}}
+				￥{{goodsData.minPrice}}
 				<span class="title">
 					{{goodsData.name}}
 				</span>
@@ -147,6 +146,7 @@
 				<view class="arrow"><view class="icon xiangyou"></view></view>
 			</view>
 		</view>
+		<discount :pid="spuId" />
 		<!-- 详情 -->
 		<view class="description" id="comments">
 			<view class="title">———— 商品详情 ————</view>
@@ -158,7 +158,9 @@
 <script>
 import httpApi from '@/common/httpApi.js'
 import config from '@/common/config.js'
+import discount from '@/components/goods-related/discount.vue'
 export default {
+	components: {discount},
 	data() {
 		return {
 			//控制渐变标题栏的参数
@@ -183,23 +185,7 @@ export default {
 			activeClass: '',//规格弹窗css类，控制开关动画
 			shareClass:'',//分享弹窗css类，控制开关动画
 			// 商品信息
-			goodsData:{
-				id:1,
-				name:"",
-				detail: "",
-				price:"",
-				number:1,
-				images: [],
-				service: null,
-				spec:["XS","S","M","L","XL","XXL"],
-				comment:{
-					number:102,
-					userface:'../../static/img/face.jpg',
-					username:'大黑哥',
-					content:'很不错，之前买了很多次了，很好看，能放很久，和图片色差不大，值得购买！'
-				}
-				
-			},
+			goodsData:{},
 			assetsHost: config.domain.assetsHost,
 			spuId: '',
 			selectSpec:null,//选中规格
@@ -244,13 +230,7 @@ export default {
 		productInfo(pid){
 			httpApi.productInfo({pid: pid}).then(res => {
 				if(res.success){
-					let data = res.data
-					this.goodsData.images = data.images
-					this.goodsData.name = data.name
-					this.goodsData.detail = data.detail
-					this.goodsData.price = `${data.minPrice}`
-					this.goodsData.service = data.service
-					this.goodsData.actives = data.actives
+					this.goodsData = res.data
 				}
 			})
 			httpApi.isFavorite({pid: pid}).then(res => {
@@ -347,49 +327,6 @@ export default {
 				}
 			})
 		},
-		//立即购买
-		buy(){
-			if(this.selectSpec==null){
-				return this.showActive(()=>{
-					this.toConfirmation();
-				});
-			}
-			this.toConfirmation();
-		},
-		//跳转确认订单页面
-		toConfirmation(){
-			let tmpList=[];
-			let goods = {id:this.goodsData.id,img:'../../static/img/goods/p1.jpg',name:this.goodsData.name,spec:'规格:'+this.goodsData.spec[this.selectSpec],price:this.goodsData.price,number:this.goodsData.number};
-			tmpList.push(goods);
-			uni.setStorage({
-				key:'buylist',
-				data:tmpList,
-				success: () => {
-					uni.navigateTo({
-						url:'../order/confirmation'
-					})
-				}
-			})
-		},
-		//跳转评论列表
-		showComments(goodsid){
-			
-		},
-		//选择规格
-		setSelectSpec(index){
-			this.selectSpec = index;
-		},
-		//减少数量
-		sub(){
-			if(this.goodsData.number<=1){
-				return;
-			}
-			this.goodsData.number--;
-		},
-		//增加数量
-		add(){
-			this.goodsData.number++;
-		},
 		//跳转锚点
 		toAnchor(index){
 			this.selectAnchor = index;
@@ -443,7 +380,7 @@ export default {
 			}, 200);
 		},
 		discard() {
-			//丢弃
+			//禁止弹层滑动
 		}
 	}
 };
