@@ -24,9 +24,9 @@
 				{{dateFormat(ticket.begin_time, 'YYYY.MM.DD')}}-{{dateFormat(ticket.end_time, 'YYYY.MM.DD')}}
 			</view>
 		</view>
-		<view class="btn" :class="{'disabled': !isBegin || isEnd}">
+		<view class="btn" :class="{'disabled': !isBegin || isEnd || ticket.status !== 0}">
 			<view class="jump" @tap="tapTicket">
-				{{!isEnd && isBegin ? clickText : errorText}}
+				{{!isEnd && isBegin && ticket.status === 0 ? clickText : errorText}}
 			</view>
 		</view>
 	</view>
@@ -61,6 +61,9 @@
 				return false
 			},
 			errorText(){
+				if(this.ticket.status === 1){
+					return '已使用'
+				}
 				if(this.isEnd){
 					return '已过期'
 				}
@@ -72,7 +75,7 @@
 		},
 		methods: {
 			tapTicket(){
-				if(this.isBegin && !this.isEnd){
+				if(this.isBegin && !this.isEnd && this.ticket.status === 0){
 					this.$emit('handleClick')
 					return
 				}
