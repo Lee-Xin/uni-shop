@@ -38,7 +38,13 @@
 				this.tickets = res.data
 			},
 			fetchTicket(ticket){
-				httpApi.userController.fetchTicket({ticketId: ticket.id})
+				httpApi.userController.fetchTicket({ticketId: ticket.id}).then(res => {
+					console.log(res);
+				}).catch(e => {
+					if(e.callback){
+						e.callback()
+					}
+				})
 			}
 		}
 	}
