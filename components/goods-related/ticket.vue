@@ -24,7 +24,12 @@
 				{{dateFormat(ticket.begin_time, 'YYYY.MM.DD')}}-{{dateFormat(ticket.end_time, 'YYYY.MM.DD')}}
 			</view>
 		</view>
-		<view class="btn" :class="{'disabled': !isBegin || isEnd || ticket.status !== 0}">
+		<view v-if="fetch" class="btn">
+			<view class="jump" @tap="tapTicket">
+				领取
+			</view>
+		</view>
+		<view v-else class="btn" :class="{'disabled': !isBegin || isEnd || ticket.status !== 0}">
 			<view class="jump" @tap="tapTicket">
 				{{!isEnd && isBegin && ticket.status === 0 ? clickText : errorText}}
 			</view>
@@ -43,6 +48,11 @@
 			clickText: {
 				type: String,
 				default: '去使用'
+			},
+			// 领取优惠券
+			fetch: {
+				type: Boolean,
+				default: false
 			}
 		},
 		data(){
@@ -75,7 +85,7 @@
 		},
 		methods: {
 			tapTicket(){
-				if(this.isBegin && !this.isEnd && this.ticket.status === 0){
+				if(this.fetch || this.isBegin && !this.isEnd && this.ticket.status === 0){
 					this.$emit('handleClick')
 					return
 				}

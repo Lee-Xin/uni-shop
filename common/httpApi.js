@@ -140,6 +140,9 @@ export default {
 		},
 		getTickets(){
 			return http.get(domain.requestHost + '/getTickets')
+		},
+		fetchTicket(param){
+			return http.post(domain.requestHost + '/fetchTicket', param)
 		}
 	}
 }
