@@ -183,9 +183,31 @@
 				})
 				httpApi.orderController.newOrder({goods: paramGoods, remark: this.remark, addressId: this.addr.id, tickets: this.choosenTickets}).then(res => {
 					if(res.success){
-						uni.navigateTo({
-							url: '/pages/order/order-list'
-						});
+						// 调用小秘消息接口
+						httpApi.xiaomiMsg({Message: '新订单：id:'+res.data.order_number+'，请尽快处理'}).then(res => {
+							if(res.Succeed){
+								// 通知成功
+								uni.showToast({
+									title: '下单成功，已通知店家处理',
+									icon: 'none'
+								});
+							} else {
+								// 通知失败
+								uni.showToast({
+									title: '下单成功，请联系店家处理',
+									icon: 'none'
+								});
+							}
+						}).catch(e => {
+							console.log(e);
+						}).finally(() => {
+							setTimeout(function(){
+								uni.navigateTo({
+									url: '/pages/order/order-list'
+								});
+							}, 2000)
+						})
+						
 					} else {
 						uni.showToast({
 							title: res.message || '生成订单失败',

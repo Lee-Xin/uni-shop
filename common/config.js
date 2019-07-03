@@ -1,6 +1,9 @@
 export default {
 	domain: {
-		requestHost: 'https://www.oupai.cloud',
-		assetsHost: 'https://www.oupai.cloud'
+		requestHost: 'http://localhost:3000',
+		assetsHost: 'http://localhost:3000'
+	},
+	shopInfo: {
+		phone: '13167855436'
 	}
 }

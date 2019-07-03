@@ -2,7 +2,38 @@ import config from '@/common/config.js'
 import http from '@/common/http.js'
 import Vue from 'vue'
 const domain = config.domain
+let {handleRes} = require('@/common/lib/commonFunc.js')
 export default {
+	xiaomiMsg(param){
+		let qs = {
+			Action: 'SendHttpMessage',
+			VerifyCode: '728642',
+			ID: '90000769',
+			...param
+		}
+		return new Promise((resolve,reject) => {
+			uni.request({
+				url: 'http://a2.xiaomilaile.com:8011/msg',
+				method: 'GET',
+				data: qs,
+				success: res => {
+					resolve(handleRes(res))
+				},
+				fail: res => {
+					if(res.errMsg){
+						uni.showToast({
+							icon: 'none',
+							title: res.errMsg
+						})
+					}
+					reject(res)
+				},
+				complete: res => {
+					resolve(res)
+				}
+			});
+		})
+	},
 	loadActives (param){
 		return http.get(domain.requestHost + '/indexActives', param)
 	},
