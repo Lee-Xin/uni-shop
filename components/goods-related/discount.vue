@@ -29,17 +29,29 @@
 		data(){
 			return {
 				tickets: [],
-				showPopup: 'none'
+				showPopup: 'none',
 			}
 		},
 		methods: {
 			async getDiscountInfo(){
 				let res = await httpApi.productController.productTickets({pid: this.pid})
-				this.tickets = res.data
+				if(res.success){
+					this.tickets = res.data
+				}
 			},
 			fetchTicket(ticket){
 				httpApi.userController.fetchTicket({ticketId: ticket.id}).then(res => {
-					console.log(res);
+					if(res.success){
+						uni.showToast({
+							title: res.message || '领取成功',
+							icon: 'success'
+						});
+					} else {
+						uni.showToast({
+							title: res.message || '领取失败',
+							icon: 'none'
+						});
+					}
 				}).catch(e => {
 					if(e.callback){
 						e.callback()
