@@ -6,7 +6,7 @@
 		<view v-else @tap="chooseAddr" class="add-addr">添加收货地址</view>
 		<view class="goods-list">
 			<view class="goods-wrap">
-				<view class="each-group" v-for="(group, key) in allSpuInfoGrouped" :key="key">
+				<view class="each-group" v-for="(group, key) in allSpuInfoGrouped" :key="group.cate_name">
 					<view class="goods-group-title">
 						{{group.cate_name}}
 					</view>
@@ -37,7 +37,7 @@
 						</view>
 					</view>
 					<view v-if="ticketsGrouped && ticketsGrouped[key]" class="tickets">
-						<view @tap="showChooseTicket = true; chooseTicketCate = key" class="cell">
+						<view @tap="chooseCate(key)" class="cell">
 							<view>优惠券</view>
 							<view class="content"></view>
 							<view v-if="group.ticket">{{group.ticket.name}}</view>
@@ -330,6 +330,10 @@
 					delete this.choosenTickets[this.chooseTicketCate]
 					this.$set(this.choosenTickets, this.chooseTicketCate.toString(), {discount: ticket.discount, id: ticket.id})
 				}
+			},
+			chooseCate(key){
+				this.showChooseTicket = true;
+				this.chooseTicketCate = key
 			}
 		}
 	}
